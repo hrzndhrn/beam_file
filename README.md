@@ -73,7 +73,7 @@ end
 
 Take a look on the Erlang code:
 ```elixir
-iex> {:ok, code} = BeamFile.elixir_code(Example.Math)
+iex> {:ok, code} = BeamFile.erl_code(Example.Math)
 iex> IO.puts(code)
 -file("test/fixtures/example/math.ex", 1).
 
