@@ -15,7 +15,7 @@ defmodule BeamFile.MixProject do
 
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger, :syntax_tools, :erl_syntax]
     ]
   end
 

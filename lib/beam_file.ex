@@ -283,14 +283,14 @@ defmodule BeamFile do
 
   defp to_chunk(chunk) when chunk in @chunk_names, do: {:ok, chunk}
 
-  defp to_chunk(chunk) when is_binary(chunk), do: {:ok, to_char_list(chunk)}
+  defp to_chunk(chunk) when is_binary(chunk), do: {:ok, to_charlist(chunk)}
 
   defp to_chunk(chunk) when is_list(chunk), do: {:ok, chunk}
 
   defp to_chunk(_), do: {:error, :invalid_chunk}
 
   defp path(path) when is_binary(path) do
-    {:ok, to_char_list(path)}
+    {:ok, to_charlist(path)}
   end
 
   defp path(module) when is_atom(module) do
