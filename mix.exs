@@ -49,7 +49,7 @@ defmodule BeamFile.MixProject do
     [
       maintainers: ["Marcus Kruse"],
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/hrzndhrn/time_zone_info"}
+      links: %{"GitHub" => "https://github.com/hrzndhrn/beam_file"}
     ]
   end
 end
