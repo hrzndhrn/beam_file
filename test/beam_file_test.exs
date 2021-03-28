@@ -25,21 +25,21 @@ defmodule BeamFileTest do
     assert info[:file] =~ "_build/test/lib/beam_file/ebin/Elixir.Math.beam"
     assert info[:module] == Math
 
-    assert info[:chunks] == [
+    assert [
              {'AtU8', 20, 209},
              {'Code', 240, 309},
              {'StrT', 560, 0},
              {'ImpT', 568, 88},
              {'ExpT', 664, 112},
              {'LitT', 784, 105},
-             {'LocT', 900, 16},
-             {'Attr', 924, 40},
-             {'CInf', 972, 198},
-             {'Dbgi', 1180, 925},
-             {'Docs', 2116, 286},
-             {'ExCk', 2412, 396},
-             {'Line', 2816, 63}
-           ]
+             {'LocT', _, _},
+             {'Attr', _, _},
+             {'CInf', _, _},
+             {'Dbgi', _, _},
+             {'Docs', _, _},
+             {'ExCk', _, _},
+             {'Line', _, _}
+           ] = info[:chunks]
   end
 
   test "chunks/1" do
@@ -52,13 +52,28 @@ defmodule BeamFileTest do
     end
 
     test ":debug_info" do
-      assert BeamFile.chunk(Math, :debug_info) == @math_debug_info
+      {:ok, {:debug_info_v1, _backend, {:elixir_v1, expected_info, expected_data}}} =
+        @math_debug_info
+
+      assert {:ok, {:debug_info_v1, _backend, {:elixir_v1, info, data}}} =
+               BeamFile.chunk(Math, :debug_info)
+
+      assert data == expected_data
+
+      keys = [:definitions, :module, :relative_file]
+      assert Map.take(info, keys) == Map.take(expected_info, keys)
     end
   end
 
   test "debug_info/1" do
-    {:ok, {:debug_info_v1, _backend, {:elixir_v1, debug_info, data}}} = @math_debug_info
-    assert BeamFile.debug_info(Math) == {:ok, {debug_info, data}}
+    {:ok, {:debug_info_v1, _backend, {:elixir_v1, expected_info, expected_data}}} =
+      @math_debug_info
+
+    assert {:ok, {info, data}} = BeamFile.debug_info(Math)
+    assert data == expected_data
+
+    keys = [:definitions, :module, :relative_file]
+    assert Map.take(info, keys) == Map.take(expected_info, keys)
   end
 
   test "erl_code/1" do
