@@ -48,7 +48,7 @@ jobs:
       - name: Lint code
         run: MIX_ENV=test mix credo --strict
       - name: Run tests
-        run: MIX_ENV=test mix coveralls.github
+        run: MIX_ENV=test mix test
       - name: Static code analysis
         run: |
           mix compile
