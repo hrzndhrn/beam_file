@@ -1,5 +1,6 @@
 # BeamFile
 [![Hex.pm](https://img.shields.io/hexpm/v/beam_file.svg)](https://hex.pm/packages/beam_file)
+[![CI](https://github.com/hrzndhrn/beam_file/actions/workflows/elixir.yml/badge.svg)](https://github.com/hrzndhrn/beam_file/actions/workflows/elixir.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 
