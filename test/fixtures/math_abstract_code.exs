@@ -82,6 +82,7 @@
                 {:atom, 1, :functions},
                 {:atom, 1, :macros},
                 {:atom, 1, :md5},
+                {:atom, 1, :exports_md5},
                 {:atom, 1, :module},
                 {:atom, 1, :deprecated}
               ]}
@@ -102,6 +103,16 @@
               {:cons, 0, {:tuple, 0, [{:atom, 0, :triple}, {:integer, 0, 1}]}, {nil, 0}}}}}}}
        ]},
       {:clause, 0, [{:atom, 0, :macros}], [], [nil: 0]},
+      {:clause, 0, [{:atom, 0, :exports_md5}], [],
+       [
+         {:bin, 0,
+          [
+            {:bin_element, 0,
+             {:string, 0,
+              [25, 151, 48, 100, 191, 19, 254, 0, 234, 227, 203, 3, 209, 77, 44, 222]}, :default,
+             :default}
+          ]}
+       ]},
       {:clause, 0, [{:match, 0, {:var, 0, :Key}, {:atom, 0, :attributes}}], [],
        [
          {:call, 0, {:remote, 0, {:atom, 0, :erlang}, {:atom, 0, :get_module_info}},

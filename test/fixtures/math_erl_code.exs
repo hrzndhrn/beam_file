@@ -1,5 +1,5 @@
 {:ok,
- """
+ String.trim(~S"""
  -file("test/fixtures/math.ex", 1).
 
  -module('Elixir.Math').
@@ -26,17 +26,34 @@
 
  -type num() :: integer().
 
- -export(['__info__'/1, add/2, divide/2, double/1,
- 	 odd_or_even/1, pi/0, triple/1]).
+ -export(['__info__'/1,
+          add/2,
+          divide/2,
+          double/1,
+          odd_or_even/1,
+          pi/0,
+          triple/1]).
 
- -spec '__info__'(attributes | compile | functions |
- 		 macros | md5 | module | deprecated) -> any().
+ -spec '__info__'(attributes |
+                  compile |
+                  functions |
+                  macros |
+                  md5 |
+                  exports_md5 |
+                  module |
+                  deprecated) -> any().
 
  '__info__'(module) -> 'Elixir.Math';
  '__info__'(functions) ->
-     [{add, 2}, {divide, 2}, {double, 1}, {odd_or_even, 1},
-      {pi, 0}, {triple, 1}];
+     [{add, 2},
+      {divide, 2},
+      {double, 1},
+      {odd_or_even, 1},
+      {pi, 0},
+      {triple, 1}];
  '__info__'(macros) -> [];
+ '__info__'(exports_md5) ->
+     <<"\031\2270d¿\023þ\000êãË\003ÑM,Þ">>;
  '__info__'(Key = attributes) ->
      erlang:get_module_info('Elixir.Math', Key);
  '__info__'(Key = compile) ->
@@ -58,11 +75,11 @@
 
  odd_or_even(_a@1) ->
      case _a@1 rem 2 == 0 of
-       false -> odd;
-       true -> even
+         false -> odd;
+         true -> even
      end.
 
  pi() -> 'Elixir.Math.Const':pi().
 
- triple(_number@1) -> 3 * _number@1.\
- """}
+ triple(_number@1) -> 3 * _number@1.
+ """)}

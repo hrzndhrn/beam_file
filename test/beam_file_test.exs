@@ -26,19 +26,19 @@ defmodule BeamFileTest do
     assert info[:module] == Math
 
     assert info[:chunks] == [
-             {'AtU8', 20, 197},
-             {'Code', 228, 304},
-             {'StrT', 540, 0},
-             {'ImpT', 548, 88},
-             {'ExpT', 644, 112},
-             {'LitT', 764, 81},
-             {'LocT', 856, 16},
-             {'Attr', 880, 40},
-             {'CInf', 928, 169},
-             {'Dbgi', 1108, 903},
-             {'Docs', 2020, 286},
-             {'ExCk', 2316, 417},
-             {'Line', 2744, 63}
+             {'AtU8', 20, 209},
+             {'Code', 240, 309},
+             {'StrT', 560, 0},
+             {'ImpT', 568, 88},
+             {'ExpT', 664, 112},
+             {'LitT', 784, 105},
+             {'LocT', 900, 16},
+             {'Attr', 924, 40},
+             {'CInf', 972, 198},
+             {'Dbgi', 1180, 925},
+             {'Docs', 2116, 286},
+             {'ExCk', 2412, 396},
+             {'Line', 2816, 63}
            ]
   end
 
@@ -72,23 +72,23 @@ defmodule BeamFileTest do
 
     assert elem(byte_code, 2) == [
              {:__info__, 1, 2},
-             {:add, 2, 10},
-             {:divide, 2, 12},
-             {:double, 1, 14},
-             {:module_info, 0, 23},
-             {:module_info, 1, 25},
-             {:odd_or_even, 1, 16},
-             {:pi, 0, 19},
-             {:triple, 1, 21}
+             {:add, 2, 11},
+             {:divide, 2, 13},
+             {:double, 1, 15},
+             {:module_info, 0, 24},
+             {:module_info, 1, 26},
+             {:odd_or_even, 1, 17},
+             {:pi, 0, 20},
+             {:triple, 1, 22}
            ]
 
     assert elem(byte_code, 5) |> Enum.at(2) ==
-             {:function, :add, 2, 10,
+             {:function, :add, 2, 11,
               [
                 {:line, 2},
-                {:label, 9},
-                {:func_info, {:atom, Math}, {:atom, :add}, 2},
                 {:label, 10},
+                {:func_info, {:atom, Math}, {:atom, :add}, 2},
+                {:label, 11},
                 {:line, 3},
                 {:gc_bif, :+, {:f, 0}, 2, [x: 0, x: 1], {:x, 0}},
                 :return

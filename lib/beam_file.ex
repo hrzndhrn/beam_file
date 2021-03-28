@@ -20,7 +20,7 @@ defmodule BeamFile do
   @type chunk_name :: charlist()
 
   @type chunk_id ::
-           :abstract_code
+          :abstract_code
           | :atoms
           | :attributes
           | :compile_info
@@ -275,11 +275,11 @@ defmodule BeamFile do
     end
   end
 
-  defp fetch_chunks(path, chunks), do: :beam_lib.chunks(path, chunks, allow_missing_chunks: true)
+  defp fetch_chunks(path, chunks), do: :beam_lib.chunks(path, chunks, [:allow_missing_chunks])
 
-  defp to_chunk(chunk)
-       when chunk in @extra_chunk_keys,
-       do: {:ok, Map.fetch!(@extra_chunk_names, chunk)}
+  defp to_chunk(chunk) when chunk in @extra_chunk_keys do
+    {:ok, Map.fetch!(@extra_chunk_names, chunk)}
+  end
 
   defp to_chunk(chunk) when chunk in @chunk_names, do: {:ok, chunk}
 
@@ -450,25 +450,26 @@ defmodule BeamFile do
         code = ["@moduledoc", @blank, str, @new_paragraph]
 
         {code, {0, 0, @doc_}}
-      :error -> :none
+
+      :error ->
+        :none
     end
     |> List.wrap()
   end
 
   defp line(meta), do: Keyword.get(meta, :line, 0)
 
-  defp code_to_string(code) do
-    code
-    |> Macro.to_string()
-    |> String.replace("&:erlang.=</2", "&<=/2")
-  end
+  defp code_to_string(code), do: Macro.to_string(code)
 
   defp to_code(data, debug_info) do
     module = Map.get(debug_info, :module) |> to_string()
 
     code =
       data
-      |> filter()
+      |> Enum.filter(fn
+        :none -> false
+        _ -> true
+      end)
       |> sort()
       |> strip()
       |> IO.iodata_to_binary()
@@ -478,21 +479,8 @@ defmodule BeamFile do
       #{code}
     end
     """
-    |> debug("temp/raw.ex")
     |> Code.format_string!()
     |> IO.iodata_to_binary()
-  end
-
-  defp debug(data, path) do
-    File.write(path, data)
-    data
-  end
-
-  defp filter(data) do
-    Enum.filter(data, fn
-      :none -> false
-      _ -> true
-    end)
   end
 
   defp sort(data) do

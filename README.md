@@ -1,4 +1,7 @@
 # BeamFile
+[![Hex.pm](https://img.shields.io/hexpm/v/beam_file.svg)](https://hex.pm/packages/beam_file)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 
 A little fun project to get a peek into BEAM files. For now, this project is in
 an early beta state.
@@ -13,19 +16,6 @@ BeamFile provides different views to the data in a BEAM file:
 
 The reconstructed Elixir code is not the original code. In this code all macros
 and reference are resolved.
-
-## Installation
-
-The package can be installed by adding `beam_file` to your list of dependencies
-in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:beam_file, github: "hrzndhrn/beam_file"}
-  ]
-end
-```
 
 ## Example
 
