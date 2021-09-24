@@ -26,12 +26,12 @@ defmodule BeamFileTest do
     assert info[:module] == Math
 
     assert [
-             {'AtU8', 20, 209},
-             {'Code', 240, _},
-             {'StrT', _, 0},
-             {'ImpT', _, 88},
-             {'ExpT', _, 112},
-             {'LitT', _, 105},
+             {'AtU8', _, _},
+             {'Code', _, _},
+             {'StrT', _, _},
+             {'ImpT', _, _},
+             {'ExpT', _, _},
+             {'LitT', _, _},
              {'LocT', _, _},
              {'Attr', _, _},
              {'CInf', _, _},
@@ -112,21 +112,41 @@ defmodule BeamFileTest do
 
   test "docs/1" do
     assert BeamFile.docs(Math) ==
-             {:ok,
-              {%{"en" => "Math is Fun"}, %{},
-               [
-                 {{:function, :add, 2}, 13, ["add(number_a, number_b)"],
-                  %{"en" => "Adds up two numbers."}, %{}},
-                 {{:function, :divide, 2}, 34, ["divide(a, b)"], :none, %{}},
-                 {{:function, :double, 1}, 19, ["double(number)"], %{"en" => "Doubles a number."},
-                  %{}},
-                 {{:function, :odd_or_even, 1}, 38, ["odd_or_even(a)"], :none, %{}},
-                 {{:function, :pi, 0}, 46, ["pi()"], :none, %{}},
-                 {{:function, :triple, 1}, 23, ["triple(number)"], %{"en" => "Triples a number."},
-                  %{}},
-                 {{:type, :num, 0}, 6, [], :none, %{}},
-                 {{:type, :x, 0}, 7, [], :none, %{opaque: true}}
-               ]}}
+             {
+               :ok,
+               {
+                 %{"en" => "Math is Fun"},
+                 %{},
+                 [
+                   {
+                     {:function, :add, 2},
+                     13,
+                     ["add(number_a, number_b)"],
+                     %{"en" => "Adds up two numbers."},
+                     %{}
+                   },
+                   {{:function, :divide, 2}, 34, ["divide(a, b)"], %{}, %{}},
+                   {
+                     {:function, :double, 1},
+                     19,
+                     ["double(number)"],
+                     %{"en" => "Doubles a number."},
+                     %{}
+                   },
+                   {{:function, :odd_or_even, 1}, 38, ["odd_or_even(a)"], %{}, %{}},
+                   {{:function, :pi, 0}, 46, ["pi()"], %{}, %{}},
+                   {
+                     {:function, :triple, 1},
+                     23,
+                     ["triple(number)"],
+                     %{"en" => "Triples a number."},
+                     %{}
+                   },
+                   {{:type, :num, 0}, 6, [], %{}, %{}},
+                   {{:type, :x, 0}, 7, [], %{}, %{opaque: true}}
+                 ]
+               }
+             }
   end
 
   describe "elixir_code/2" do
