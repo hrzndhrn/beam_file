@@ -27,11 +27,11 @@ defmodule BeamFileTest do
 
     assert [
              {'AtU8', 20, 209},
-             {'Code', 240, 309},
-             {'StrT', 560, 0},
-             {'ImpT', 568, 88},
-             {'ExpT', 664, 112},
-             {'LitT', 784, 105},
+             {'Code', 240, _},
+             {'StrT', _, 0},
+             {'ImpT', _, 88},
+             {'ExpT', _, 112},
+             {'LitT', _, 105},
              {'LocT', _, _},
              {'Attr', _, _},
              {'CInf', _, _},
