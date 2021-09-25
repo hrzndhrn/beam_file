@@ -7,6 +7,10 @@ defmodule BeamFileTest do
   @math_erl_code Code.eval_file("test/fixtures/math_erl_code.exs") |> elem(0)
   @math_docs Code.eval_file("test/fixtures/math_docs.exs") |> elem(0)
 
+  unless @latest do
+    defp lines(str, count), do: str |> String.split("\n") |> Enum.take(count)
+  end
+
   describe "which/1" do
     test "returns the path to the given module" do
       assert {:ok, path} = BeamFile.which(Math)
@@ -86,8 +90,16 @@ defmodule BeamFileTest do
     assert Map.take(info, keys) == Map.take(expected_info, keys)
   end
 
-  test "erl_code/1" do
-    assert BeamFile.erl_code(Math) == @math_erl_code
+  if @latest do
+    test "erl_code/1" do
+      assert BeamFile.erl_code(Math) == @math_erl_code
+    end
+  else
+    test "erl_code/1" do
+      {:ok, erl} = @math_erl_code
+      assert {:ok, code} = BeamFile.erl_code(Math)
+      assert lines(erl, 5) == lines(code, 5)
+    end
   end
 
   test "byte_code/1" do
