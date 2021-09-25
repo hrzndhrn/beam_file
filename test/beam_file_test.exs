@@ -1,7 +1,7 @@
 defmodule BeamFileTest do
   use ExUnit.Case
 
-  @latest System.version() == "1.12.2"
+  @latest System.version() == "1.12.2" && :erlang.system_info(:otp_release) == '24'
   @math_abstract_code Code.eval_file("test/fixtures/math_abstract_code.exs") |> elem(0)
   @math_debug_info Code.eval_file("test/fixtures/math_debug_info.exs") |> elem(0)
   @math_erl_code Code.eval_file("test/fixtures/math_erl_code.exs") |> elem(0)
