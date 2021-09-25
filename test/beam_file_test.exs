@@ -1,9 +1,11 @@
 defmodule BeamFileTest do
   use ExUnit.Case
 
+  @latest System.version() == "1.12.2"
   @math_abstract_code Code.eval_file("test/fixtures/math_abstract_code.exs") |> elem(0)
   @math_debug_info Code.eval_file("test/fixtures/math_debug_info.exs") |> elem(0)
   @math_erl_code Code.eval_file("test/fixtures/math_erl_code.exs") |> elem(0)
+  @math_docs Code.eval_file("test/fixtures/math_docs.exs") |> elem(0)
 
   describe "which/1" do
     test "returns the path to the given module" do
@@ -16,8 +18,16 @@ defmodule BeamFileTest do
     end
   end
 
-  test "abstract_code/1" do
-    assert BeamFile.abstract_code(Math) == @math_abstract_code
+  if @latest do
+    test "abstract_code/1" do
+      assert BeamFile.abstract_code(Math) == @math_abstract_code
+    end
+  else
+    test "abstract_code/1" do
+      {:ok, [attr | _]} = @math_abstract_code
+      assert {:ok, code} = BeamFile.abstract_code(Math)
+      assert hd(code) == attr
+    end
   end
 
   test "info/1" do
@@ -110,43 +120,15 @@ defmodule BeamFileTest do
               ]}
   end
 
-  test "docs/1" do
-    assert BeamFile.docs(Math) ==
-             {
-               :ok,
-               {
-                 %{"en" => "Math is Fun"},
-                 %{},
-                 [
-                   {
-                     {:function, :add, 2},
-                     13,
-                     ["add(number_a, number_b)"],
-                     %{"en" => "Adds up two numbers."},
-                     %{}
-                   },
-                   {{:function, :divide, 2}, 34, ["divide(a, b)"], %{}, %{}},
-                   {
-                     {:function, :double, 1},
-                     19,
-                     ["double(number)"],
-                     %{"en" => "Doubles a number."},
-                     %{}
-                   },
-                   {{:function, :odd_or_even, 1}, 38, ["odd_or_even(a)"], %{}, %{}},
-                   {{:function, :pi, 0}, 46, ["pi()"], %{}, %{}},
-                   {
-                     {:function, :triple, 1},
-                     23,
-                     ["triple(number)"],
-                     %{"en" => "Triples a number."},
-                     %{}
-                   },
-                   {{:type, :num, 0}, 6, [], %{}, %{}},
-                   {{:type, :x, 0}, 7, [], %{}, %{opaque: true}}
-                 ]
-               }
-             }
+  if @latest do
+    test "docs/1" do
+      assert BeamFile.docs(Math) == @math_docs
+    end
+  else
+    test "docs/1" do
+      assert {:ok, {doc, meta, _}} = @math_docs
+      assert {:ok, {^doc, ^meta, _}} = BeamFile.docs(Math)
+    end
   end
 
   describe "elixir_code/2" do
