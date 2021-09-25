@@ -107,29 +107,19 @@ defmodule BeamFileTest do
     assert elem(byte_code, 0) == :beam_file
     assert elem(byte_code, 1) == Math
 
-    assert elem(byte_code, 2) == [
-             {:__info__, 1, 2},
-             {:add, 2, 11},
-             {:divide, 2, 13},
-             {:double, 1, 15},
-             {:module_info, 0, 24},
-             {:module_info, 1, 26},
-             {:odd_or_even, 1, 17},
-             {:pi, 0, 20},
-             {:triple, 1, 22}
+    assert elem(byte_code, 2) |> Enum.map(fn {key, _, _} -> key end) == [
+             :__info__,
+             :add,
+             :divide,
+             :double,
+             :module_info,
+             :module_info,
+             :odd_or_even,
+             :pi,
+             :triple
            ]
 
-    assert elem(byte_code, 5) |> Enum.at(2) ==
-             {:function, :add, 2, 11,
-              [
-                {:line, 2},
-                {:label, 10},
-                {:func_info, {:atom, Math}, {:atom, :add}, 2},
-                {:label, 11},
-                {:line, 3},
-                {:gc_bif, :+, {:f, 0}, 2, [x: 0, x: 1], {:x, 0}},
-                :return
-              ]}
+    assert {:function, :add, _, _, _} = elem(byte_code, 5) |> Enum.at(2)
   end
 
   if @latest do
