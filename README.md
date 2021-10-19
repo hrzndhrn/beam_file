@@ -3,7 +3,6 @@
 [![GitHub: CI status](https://img.shields.io/github/workflow/status/hrzndhrn/beam_file/CI?style=flat-square)](https://github.com/hrzndhrn/beam_file/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://github.com/hrzndhrn//blob/main/LICENSE.md)
 
-
 A little fun project to get a peek into BEAM files. For now, this project is in
 an early beta state.
 
