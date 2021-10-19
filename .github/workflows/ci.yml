@@ -10,7 +10,6 @@ jobs:
     name: Test on Ubuntu (Elixir ${{ matrix.elixir }}, OTP ${{ matrix.otp }})
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
       matrix:
         elixir:
           - '1.11.4'
