@@ -53,7 +53,7 @@
       {triple, 1}];
  '__info__'(macros) -> [];
  '__info__'(exports_md5) ->
-     <<"\031\2270d¿\023þ\000êãË\003ÑM,Þ">>;
+     <<"\031\2270d¬ø\023√æ\000√™√£√ã\003√ëM,√û">>;
  '__info__'(Key = attributes) ->
      erlang:get_module_info('Elixir.Math', Key);
  '__info__'(Key = compile) ->
@@ -81,5 +81,5 @@
 
  pi() -> 'Elixir.Math.Const':pi().
 
- triple(_number@1) -> 3 * _number@1.
+ triple(_number@1) -> 3 * _number@1.:ok
  """)}
