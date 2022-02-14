@@ -1,15 +1,14 @@
 defmodule BeamFileTest do
   use ExUnit.Case
 
-  @latest System.version() == "1.12.2" && :erlang.system_info(:otp_release) == '24'
-  @math_abstract_code Code.eval_file("test/fixtures/math_abstract_code.exs") |> elem(0)
-  @math_debug_info Code.eval_file("test/fixtures/math_debug_info.exs") |> elem(0)
-  @math_erl_code Code.eval_file("test/fixtures/math_erl_code.exs") |> elem(0)
-  @math_docs Code.eval_file("test/fixtures/math_docs.exs") |> elem(0)
-
-  unless @latest do
-    defp lines(str, count), do: str |> String.split("\n") |> Enum.take(count)
+  fixture = fn file ->
+    "test/fixtures/#{System.version()}/#{file}/" |> Code.eval_file() |> elem(0)
   end
+
+  @math_abstract_code fixture.("math_abstract_code.exs")
+  @math_debug_info fixture.("math_debug_info.exs")
+  @math_erl_code fixture.("math_erl_code.exs")
+  @math_docs fixture.("math_docs.exs")
 
   describe "which/1" do
     test "returns the path to the given module" do
@@ -22,16 +21,8 @@ defmodule BeamFileTest do
     end
   end
 
-  if @latest do
-    test "abstract_code/1" do
-      assert BeamFile.abstract_code(Math) == @math_abstract_code
-    end
-  else
-    test "abstract_code/1" do
-      {:ok, [attr | _]} = @math_abstract_code
-      assert {:ok, code} = BeamFile.abstract_code(Math)
-      assert hd(code) == attr
-    end
+  test "abstract_code/1" do
+    assert BeamFile.abstract_code(Math) == @math_abstract_code
   end
 
   test "info/1" do
@@ -90,16 +81,8 @@ defmodule BeamFileTest do
     assert Map.take(info, keys) == Map.take(expected_info, keys)
   end
 
-  if @latest do
-    test "erl_code/1" do
-      assert BeamFile.erl_code(Math) == @math_erl_code
-    end
-  else
-    test "erl_code/1" do
-      {:ok, erl} = @math_erl_code
-      assert {:ok, code} = BeamFile.erl_code(Math)
-      assert lines(erl, 5) == lines(code, 5)
-    end
+  test "erl_code/1" do
+    assert BeamFile.erl_code(Math) == @math_erl_code
   end
 
   test "byte_code/1" do
@@ -122,26 +105,19 @@ defmodule BeamFileTest do
     assert {:function, :add, _, _, _} = elem(byte_code, 5) |> Enum.at(2)
   end
 
-  if @latest do
-    test "docs/1" do
-      assert BeamFile.docs(Math) == @math_docs
-    end
-  else
-    test "docs/1" do
-      assert {:ok, {doc, meta, _}} = @math_docs
-      assert {:ok, {^doc, ^meta, _}} = BeamFile.docs(Math)
-    end
+  test "docs/1" do
+    assert BeamFile.docs(Math) == @math_docs
   end
 
   describe "elixir_code/2" do
     test "returns elixir code for the Math module" do
       assert {:ok, code} = BeamFile.elixir_code(Math)
-      assert code <> "\n" == File.read!("test/fixtures/math.exs")
+      assert code <> "\n" == File.read!("test/fixtures/#{System.version()}/math.exs")
     end
 
     test "returns elixir code for the Math module without docs" do
       assert {:ok, code} = BeamFile.elixir_code(Math, docs: false)
-      assert code <> "\n" == File.read!("test/fixtures/math_without_docs.exs")
+      assert code <> "\n" == File.read!("test/fixtures/#{System.version()}/math_without_docs.exs")
     end
 
     test "returns elixir code for the Default module" do
