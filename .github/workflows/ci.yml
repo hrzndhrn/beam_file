@@ -9,7 +9,6 @@ jobs:
   linux:
     name: Test on Ubuntu (Elixir ${{ matrix.elixir }}, OTP ${{ matrix.otp }})
     runs-on: ubuntu-latest
-    continue-on-error: true
     strategy:
       matrix:
         elixir:
