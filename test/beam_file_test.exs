@@ -1,14 +1,18 @@
 defmodule BeamFileTest do
   use ExUnit.Case
 
-  fixture = fn file, version ->
-    "test/fixtures/#{version}/#{file}/" |> Code.eval_file() |> elem(0)
+  fixture = fn
+    file -> "test/fixtures/#{file}/" |> Code.eval_file() |> elem(0)
   end
 
-  @math_abstract_code fixture.("math_abstract_code.exs", System.version())
-  @math_debug_info fixture.("math_debug_info.exs", System.version())
-  @math_erl_code fixture.("math_erl_code.exs", :erlang.system_info(:otp_release))
-  @math_docs fixture.("math_docs.exs", System.version())
+  fixture_version = fn
+    file -> "test/fixtures/#{System.version()}/#{file}/" |> Code.eval_file() |> elem(0)
+  end
+
+  @math_abstract_code fixture_version.("math_abstract_code.exs")
+  @math_debug_info fixture_version.("math_debug_info.exs")
+  @math_docs fixture_version.("math_docs.exs")
+  @math_erl_code fixture.("math_erl_code.exs")
 
   describe "which/1" do
     test "returns the path to the given module" do
@@ -81,8 +85,14 @@ defmodule BeamFileTest do
     assert Map.take(info, keys) == Map.take(expected_info, keys)
   end
 
-  test "erl_code/1" do
-    assert BeamFile.erl_code(Math) == @math_erl_code
+  if :erlang.system_info(:otp_release) == '24' do
+    test "erl_code/1" do
+      assert BeamFile.erl_code(Math) == @math_erl_code
+    end
+  else
+    test "erl_code/1" do
+      assert {:ok, _erl_code} = BeamFile.erl_code(Math)
+    end
   end
 
   test "byte_code/1" do
