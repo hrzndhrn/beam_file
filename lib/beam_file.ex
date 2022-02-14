@@ -385,12 +385,7 @@ defmodule BeamFile do
 
   defp do_block(block, meta, index) when is_list(block) do
     line = line(meta)
-
-    code =
-      block
-      |> Enum.map(&code_to_string/1)
-      |> Enum.join(@new_line)
-
+    code = Enum.map_join(block, @new_line, &code_to_string/1)
     code = ["do", @new_line, code, @new_line, "end", @new_paragraph]
 
     {code, {line, index, @block}}
