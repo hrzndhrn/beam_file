@@ -3,7 +3,9 @@ defmodule BeamFileTest do
 
   alias BeamFile.Error
 
-  if System.version() =~ "1.13", do: doctest(BeamFile)
+  if System.version() =~ "1.13" and :erlang.system_info(:otp_release) == '24' do
+    doctest(BeamFile)
+  end
 
   fixture = fn
     file -> "test/fixtures/#{file}/" |> Code.eval_file() |> elem(0)
