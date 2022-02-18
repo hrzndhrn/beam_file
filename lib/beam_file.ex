@@ -250,9 +250,7 @@ defmodule BeamFile do
         :ids -> @chunk_ids
       end
 
-    with {:ok, data} <- fetch_chunks(input, chunks, type) do
-      {:ok, data}
-    end
+    fetch_chunks(input, chunks, type)
   end
 
   @doc """
@@ -337,8 +335,15 @@ defmodule BeamFile do
   def chunk(input, chunk)
       when (is_list(input) or is_binary(input)) and
              (chunk in @chunk_ids or chunk in @chunk_names) do
-    with {:ok, data} <- fetch_chunk(input, chunk) do
-      {:ok, data}
+    type =
+      cond do
+        chunk in @chunk_names -> :names
+        chunk in @chunk_ids -> :ids
+      end
+
+    with {:ok, data} <- fetch_chunks(input, [chunk], type) do
+      [{_key, value}] = Map.to_list(data)
+      {:ok, value}
     end
   end
 
@@ -439,8 +444,6 @@ defmodule BeamFile do
         """
     end
   end
-
-  # TODO: >>>
 
   @doc ~S'''
   Returns elixir code recreated from the `debug_info` chunk.
@@ -548,8 +551,6 @@ defmodule BeamFile do
     end
   end
 
-  # TODO: <<<
-
   @doc """
   Returns the binary for the given BEAM file.
   """
@@ -568,7 +569,7 @@ defmodule BeamFile do
   end
 
   @doc """
-  Same as `which/1` but raises `BeamFile.Error`
+  Same as `read/1` but raises `BeamFile.Error`
   """
   @spec read!(input()) :: binary()
   def read!(input) do
@@ -665,7 +666,7 @@ defmodule BeamFile do
   @doc """
   Same as `which/1` but raises `BeamFile.Error`
   """
-  @spec which(module()) :: Path.t()
+  @spec which!(module()) :: Path.t()
   def which!(module) when is_atom(module) do
     case which(module) do
       {:ok, path} ->
@@ -673,19 +674,6 @@ defmodule BeamFile do
 
       {:error, reason} ->
         raise Error, "Path for #{module} not available, reason: #{inspect(reason)}."
-    end
-  end
-
-  defp fetch_chunk(input, chunk) do
-    type =
-      cond do
-        chunk in @chunk_names -> :names
-        chunk in @chunk_ids -> :ids
-      end
-
-    with {:ok, data} <- fetch_chunks(input, [chunk], type) do
-      [{_key, value}] = Map.to_list(data)
-      {:ok, value}
     end
   end
 
