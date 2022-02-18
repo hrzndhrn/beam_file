@@ -92,7 +92,6 @@
         ]}
      ],
      deprecated: [],
-     file: "/Users/kruse/Projects/beam_file/test/fixtures/math.ex",
      is_behaviour: false,
      line: 1,
      module: Math,

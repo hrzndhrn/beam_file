@@ -4,14 +4,15 @@ defmodule BeamFile.MixProject do
   def project do
     [
       app: :beam_file,
-      version: "0.1.0",
+      version: "0.2.0",
       elixir: "~> 1.11",
       description: "An interface to the BEAM file format and a decompiler",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       elixirc_paths: elixirc_paths(),
       dialyzer: dialyzer(),
-      package: package()
+      package: package(),
+      docs: docs()
     ]
   end
 
@@ -27,6 +28,13 @@ defmodule BeamFile.MixProject do
     else
       ["lib"]
     end
+  end
+
+  defp docs do
+    [
+      main: "BeamFile",
+      formatters: ["html"]
+    ]
   end
 
   defp dialyzer do
