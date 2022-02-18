@@ -2,7 +2,6 @@
 
 ## 0.2.0 - 2022/02/18
 
-+ Require Elixir 1.12
 + Add `!`-functions.
 + `debug_info` now uses `backend.debug_info/4`
 

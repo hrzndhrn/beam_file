@@ -21,17 +21,17 @@ defmodule BeamFileTest do
 
   describe "abstract_code/1" do
     test "returns abstract code for module" do
-      assert BeamFile.abstract_code(Math) == {:ok, @math_abstract_code}
+      assert BeamFile.abstract_code(Math) == @math_abstract_code
     end
 
     test "returns abstract code for binary" do
       math = File.read!(@math_beam_path)
-      assert BeamFile.abstract_code(math) == {:ok, @math_abstract_code}
+      assert BeamFile.abstract_code(math) == @math_abstract_code
     end
 
     test "returns abstract code for the beam file at the given path" do
       path = String.to_charlist(@math_beam_path)
-      assert BeamFile.abstract_code(path) == {:ok, @math_abstract_code}
+      assert BeamFile.abstract_code(path) == @math_abstract_code
     end
 
     test "returns an error for an unknown module" do
@@ -50,7 +50,8 @@ defmodule BeamFileTest do
 
   describe "abstract_code!/1" do
     test "returns abstract code for module" do
-      assert BeamFile.abstract_code!(Math) == @math_abstract_code
+      {:ok, code} = @math_abstract_code
+      assert BeamFile.abstract_code!(Math) == code
     end
 
     test "returns an error for an invalid path" do
