@@ -599,21 +599,23 @@ defmodule BeamFile do
       iex> {:ok, info} = BeamFile.info(BeamFile.Example)
       iex> info[:module]
       BeamFile.Example
-      iex> Enum.sort(info[:chunks])
+      iex> info[:chunks]
+      ...> |> Enum.map(fn {id, _pos, _size} -> id end)
+      ...> |> Enum.sort()
       [
-        {'AtU8', 20, 154},
-        {'Attr', 516, 40},
-        {'CInf', 564, 199},
-        {'Code', 184, 139},
-        {'Dbgi', 772, 270},
-        {'Docs', 1052, 106},
-        {'ExCk', 1168, 102},
-        {'ExpT', 376, 52},
-        {'ImpT', 340, 28},
-        {'Line', 1280, 48},
-        {'LitT', 436, 60},
-        {'LocT', 504, 4},
-        {'StrT', 332, 0}
+        'AtU8',
+        'Attr',
+        'CInf',
+        'Code',
+        'Dbgi',
+        'Docs',
+        'ExCk',
+        'ExpT',
+        'ImpT',
+        'Line',
+        'LitT',
+        'LocT',
+        'StrT'
       ]
   """
   @spec info(input()) :: {:ok, info()} | {:error, reason()}
