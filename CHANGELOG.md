@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0 - 2022/02/19
+
++ Add `BeamFile.exists?`
+
 ## 0.2.0 - 2022/02/18
 
 + Add `!`-functions.

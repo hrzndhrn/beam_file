@@ -4,7 +4,7 @@ defmodule BeamFile.MixProject do
   def project do
     [
       app: :beam_file,
-      version: "0.2.0",
+      version: "0.3.0",
       elixir: "~> 1.11",
       description: "An interface to the BEAM file format and a decompiler",
       start_permanent: Mix.env() == :prod,

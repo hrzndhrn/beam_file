@@ -586,6 +586,24 @@ defmodule BeamFile do
   end
 
   @doc """
+  Returns `true` if a BEAM file for the given `module` exists.
+
+  ## Examples
+
+      iex> BeamFile.exists?(BeamFile.Example)
+      true
+      iex> BeamFile.exists?(Physics.TOE)
+      false
+  """
+  @spec exists?(module()) :: boolean()
+  def exists?(module) do
+    case :code.which(module) do
+      :non_existing -> false
+      _path -> true
+    end
+  end
+
+  @doc """
   Returns a keyword list containing some information about a BEAM file.
 
   - `:file`: The name of the BEAM file, or the binary from which the information
