@@ -430,7 +430,8 @@ defmodule BeamFileTest do
     end
 
     test "returns an error tuple for an invalid path" do
-      assert BeamFile.info('invalid/path') == {:error, {:file_error, 'invalid/path.beam', :enoent}}
+      assert BeamFile.info('invalid/path') ==
+               {:error, {:file_error, 'invalid/path.beam', :enoent}}
     end
 
     test "returns an error tuple for invalid binary" do

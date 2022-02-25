@@ -36,7 +36,7 @@ defmodule BeamFile.MixProject do
       "coveralls.detail": :test,
       "coveralls.post": :test,
       "coveralls.html": :test,
-      "coveralls.travis": :test,
+      "coveralls.travis": :test
     ]
   end
 
