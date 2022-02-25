@@ -565,7 +565,7 @@ defmodule BeamFile do
   end
 
   def read(input) when is_atom(input) do
-    with {:ok, path} <- which(input), do: read(path)
+    with {:ok, path} <- which(input), do: path |> String.to_charlist() |> read()
   end
 
   @doc """
@@ -599,6 +599,7 @@ defmodule BeamFile do
   def exists?(module) do
     case :code.which(module) do
       :non_existing -> false
+      [] -> false
       _path -> true
     end
   end
@@ -679,6 +680,7 @@ defmodule BeamFile do
   def which(module) when is_atom(module) do
     case :code.which(module) do
       [_ | _] = path -> {:ok, IO.chardata_to_string(path)}
+      [] -> {:error, :non_existing}
       error -> {:error, error}
     end
   end
@@ -731,6 +733,7 @@ defmodule BeamFile do
 
   defp path(module) when is_atom(module) do
     case :code.which(module) do
+      [] -> {:error, :non_existing}
       [_ | _] = path -> {:ok, path}
       error -> {:error, error}
     end

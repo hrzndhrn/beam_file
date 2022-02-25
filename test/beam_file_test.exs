@@ -80,6 +80,15 @@ defmodule BeamFileTest do
     test "returns an error tuple for an invalid module" do
       assert BeamFile.all_chunks(Unknown) == {:error, :non_existing}
     end
+
+    test "returns an error tuple for an dynamic compiled module" do
+      Code.compile_string("""
+      defmodule OnTheFly do
+      end
+      """)
+
+      assert BeamFile.all_chunks(OnTheFly) == {:error, :non_existing}
+    end
   end
 
   describe "all_chunks!/2" do
@@ -402,6 +411,58 @@ defmodule BeamFileTest do
            ] = info[:chunks]
   end
 
+  describe "info/1" do
+    test "returns info for a module" do
+      assert {:ok, info} = BeamFile.info(Math)
+      assert info[:module] == Math
+    end
+
+    test "returns info for binary" do
+      math = File.read!(@math_beam_path)
+      assert {:ok, info} = BeamFile.info(math)
+      assert info[:module] == Math
+    end
+
+    test "returns info for the beam file at the given path" do
+      path = String.to_charlist(@math_beam_path)
+      assert {:ok, info} = BeamFile.info(path)
+      assert info[:module] == Math
+    end
+
+    test "returns an error tuple for an invalid path" do
+      assert BeamFile.info('invalid/path') == {:error, {:file_error, 'invalid/path.beam', :enoent}}
+    end
+
+    test "returns an error tuple for invalid binary" do
+      assert BeamFile.info("invalid") == {:error, {:not_a_beam_file, "invalid"}}
+    end
+  end
+
+  describe "read/1" do
+    test "reads the binary for a module" do
+      assert {:ok, binary} = BeamFile.read(Math)
+      assert is_binary(binary)
+    end
+
+    test "binary stays binary :)" do
+      assert BeamFile.read("ping") == {:ok, "ping"}
+    end
+  end
+
+  describe "read!/1" do
+    test "reads the binary for a module" do
+      assert Math |> BeamFile.read!() |> is_binary()
+    end
+
+    test "raises an error for an unknown module" do
+      message = "Can not read Unknown, reason: :non_existing"
+
+      assert_raise Error, message, fn ->
+        BeamFile.read!(Unknown)
+      end
+    end
+  end
+
   describe "which/1" do
     test "returns the path to the given module" do
       assert {:ok, path} = BeamFile.which(Math)
@@ -411,11 +472,20 @@ defmodule BeamFileTest do
     test "returns an error tuple" do
       assert BeamFile.which(Unknown.Module) == {:error, :non_existing}
     end
+
+    test "returns an error tuple for an dynamic compiled module" do
+      Code.compile_string("""
+      defmodule OnTheFly do
+      end
+      """)
+
+      assert BeamFile.which(OnTheFly) == {:error, :non_existing}
+    end
   end
 
   describe "which!/1" do
     test "returns the path to the given module" do
-      assert BeamFile.which!(Math) =~ "beam_file/_build/test/lib/beam_file/ebin/Elixir.Math.beam"
+      assert BeamFile.which!(Math) =~ "_build/test/lib/beam_file/ebin/Elixir.Math.beam"
     end
 
     test "raises an error" do

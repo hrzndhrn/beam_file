@@ -4,12 +4,13 @@ defmodule BeamFile.MixProject do
   def project do
     [
       app: :beam_file,
-      version: "0.3.0",
+      version: "0.3.1",
       elixir: "~> 1.11",
       description: "An interface to the BEAM file format and a decompiler",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      elixirc_paths: elixirc_paths(),
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: preferred_cli_env(),
       dialyzer: dialyzer(),
       package: package(),
       docs: docs()
@@ -22,18 +23,20 @@ defmodule BeamFile.MixProject do
     ]
   end
 
-  defp elixirc_paths do
-    if Mix.env() == :test do
-      ["lib", "test/fixtures"]
-    else
-      ["lib"]
-    end
-  end
-
   defp docs do
     [
       main: "BeamFile",
       formatters: ["html"]
+    ]
+  end
+
+  defp preferred_cli_env do
+    [
+      coveralls: :test,
+      "coveralls.detail": :test,
+      "coveralls.post": :test,
+      "coveralls.html": :test,
+      "coveralls.travis": :test,
     ]
   end
 
@@ -49,7 +52,8 @@ defmodule BeamFile.MixProject do
     [
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.1", only: :dev, runtime: false},
-      {:ex_doc, "~> 0.21", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.21", only: :dev, runtime: false},
+      {:excoveralls, "~> 0.14.4", only: :test}
     ]
   end
 

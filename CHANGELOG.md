@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.1 - 2022/02/25
+
++ Fix `BeamFile.read/1`
++ Fix `BeamFile.exists?/1`
++ Add `excoveralls`
++ Add more tests
+
 ## 0.3.0 - 2022/02/19
 
 + Add `BeamFile.exists?`
