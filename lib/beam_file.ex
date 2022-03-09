@@ -384,9 +384,14 @@ defmodule BeamFile do
   end
 
   def debug_info(input) when is_list(input) or is_binary(input) do
-    with {:ok, {:debug_info_v1, backend, {:elixir_v1, debug_info, _meta} = data}} <-
-           chunk(input, :debug_info) do
-      backend.debug_info(:elixir_v1, debug_info.module, data, [])
+    with {:ok, {:debug_info_v1, backend, data}} <- chunk(input, :debug_info) do
+      case data do
+        {:elixir_v1, debug_info, _meta} ->
+          backend.debug_info(:elixir_v1, debug_info.module, data, [])
+
+        :none ->
+          {:error, :no_debug_info}
+      end
     end
   end
 

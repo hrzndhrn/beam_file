@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.2 - 2022/03/09
+
++ Fix return value for `BeamFile.debug_info/1` when no debug info is available.
+
 ## 0.3.1 - 2022/02/25
 
 + Fix `BeamFile.read/1`

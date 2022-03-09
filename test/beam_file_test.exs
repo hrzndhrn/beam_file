@@ -257,6 +257,20 @@ defmodule BeamFileTest do
       assert BeamFile.debug_info('invalid/path') ==
                {:error, {:file_error, 'invalid/path.beam', :enoent}}
     end
+
+    test "returns an error if no debug info is availabel" do
+      code = """
+      defmodule Foo do
+        def foo, do: :foo
+      end
+      """
+
+      Code.put_compiler_option(:debug_info, false)
+      binary = code |> Code.compile_string() |> Keyword.fetch!(Foo)
+      Code.put_compiler_option(:debug_info, true)
+
+      assert BeamFile.debug_info(binary) == {:error, :no_debug_info}
+    end
   end
 
   describe "debug_info!/1" do
