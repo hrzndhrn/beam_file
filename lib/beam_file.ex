@@ -12,6 +12,9 @@ defmodule BeamFile do
   - `BeamFile.byte_code/1`
   - `BeamFile.erl_code/1`
   - `BeamFile.elixir_code/2`
+
+  To use the functions above with a module name the module must be compiled
+  and loaded. The functions can also be used with the binary of a module.
   """
 
   alias BeamFile.Error
@@ -676,8 +679,8 @@ defmodule BeamFile do
 
   ## Examples
 
-     iex> {:ok, path} = BeamFile.which(BeamFile.Example)
-     iex> path =~ "/_build/test/lib/beam_file/ebin/Elixir.BeamFile.Example.beam"
+      iex> {:ok, path} = BeamFile.which(BeamFile.Example)
+      iex> path =~ "/_build/test/lib/beam_file/ebin/Elixir.BeamFile.Example.beam"
   """
   @spec which(module()) ::
           {:ok, Path.t()}

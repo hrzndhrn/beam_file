@@ -35,6 +35,11 @@ defmodule Example.Math do
   end
 end
 ```
+The module must be compiled and loaded so that it can be found by name, see
+[BeamFile.which/1](file:///Users/kruse/Projects/hrzndhrn/beam_file/doc/BeamFile.html#which/1)
+and [:erlang.whihc/1](https://www.erlang.org/doc/man/code.html#which-1). To give
+`BaemFile` in `iex` a try see "Example (iex)" in the next section.
+
 
 Than we can reconstruct Elixir code:
 ```elixir
@@ -209,6 +214,48 @@ iex> IO.puts(code)
         {:extfunc, :erlang, :get_module_info, 2}}
      ]}
   ]}}
+```
+
+## Example (iex)
+
+Use of `BeamFile.erl_code/1` with `binary`:
+```elixir
+iex(1)> {:module, Foo, binary, _} = defmodule Foo do
+...(1)>   def bar, do: :bar
+...(1)> end
+iex(2)> BeamFile.erl_code!(binary) |> IO.puts()
+-file("iex", 1).
+
+-module('Elixir.Foo').
+
+-compile([no_auto_import]).
+
+-export(['__info__'/1, bar/0]).
+
+-spec '__info__'(attributes |
+                 compile |
+                 functions |
+                 macros |
+                 md5 |
+                 exports_md5 |
+                 module |
+                 deprecated) -> any().
+
+'__info__'(module) -> 'Elixir.Foo';
+'__info__'(functions) -> [{bar, 0}];
+'__info__'(macros) -> [];
+'__info__'(exports_md5) ->
+    <<"®\r¦c\004í.©¾uHÀ¯\217,">>;
+'__info__'(Key = attributes) ->
+    erlang:get_module_info('Elixir.Foo', Key);
+'__info__'(Key = compile) ->
+    erlang:get_module_info('Elixir.Foo', Key);
+'__info__'(Key = md5) ->
+    erlang:get_module_info('Elixir.Foo', Key);
+'__info__'(deprecated) -> [].
+
+bar() -> bar.
+:ok
 ```
 
 ## Resources
