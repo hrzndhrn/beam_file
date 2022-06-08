@@ -6,7 +6,7 @@
 A little fun project to get a peek into BEAM files. For now, this project is in
 an early beta state.
 
-BeamFile is mainly a wrapper around the Erlang module `:beam_lib`.
+BeamFile is mainly a wrapper around the Erlang module [`:beam_lib`](https://www.erlang.org/doc/man/beam_lib.html).
 
 BeamFile provides different views to the data in a BEAM file:
 - abstract code
