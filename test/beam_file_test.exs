@@ -69,7 +69,7 @@ defmodule BeamFileTest do
   end
 
   describe "all_chunks/2" do
-    test "returns all chunks for a moudle with default type" do
+    test "returns all chunks for a module with default type" do
       assert {:ok, _chunks} = BeamFile.all_chunks(Math)
     end
 
@@ -92,7 +92,7 @@ defmodule BeamFileTest do
   end
 
   describe "all_chunks!/2" do
-    test "returns all chunks for a moudle with default type" do
+    test "returns all chunks for a module with default type" do
       assert Math |> BeamFile.all_chunks!() |> is_map()
     end
 
@@ -234,7 +234,7 @@ defmodule BeamFileTest do
   end
 
   describe "debug_info/1" do
-    test "return debug info for a moudle" do
+    test "return debug info for a module" do
       {:ok, {:debug_info_v1, _backend, {:elixir_v1, expected_info, _meta}}} = @math_debug_info
 
       assert {:ok, debug_info} = BeamFile.debug_info(Math)
@@ -258,7 +258,7 @@ defmodule BeamFileTest do
                {:error, {:file_error, 'invalid/path.beam', :enoent}}
     end
 
-    test "returns an error if no debug info is availabel" do
+    test "returns an error if no debug info is available" do
       code = """
       defmodule Foo do
         def foo, do: :foo
@@ -274,7 +274,7 @@ defmodule BeamFileTest do
   end
 
   describe "debug_info!/1" do
-    test "return debug info for a moudle" do
+    test "return debug info for a module" do
       {:ok, {:debug_info_v1, _backend, {:elixir_v1, expected_info, _meta}}} = @math_debug_info
 
       debug_info = BeamFile.debug_info!(Math)
@@ -313,7 +313,7 @@ defmodule BeamFileTest do
   end
 
   describe "docs!/1" do
-    test "returns docs info for a moudle" do
+    test "returns docs info for a module" do
       {:ok, math_docs} = @math_docs
       assert BeamFile.docs!(Math) == math_docs
     end

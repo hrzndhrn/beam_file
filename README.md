@@ -37,7 +37,7 @@ end
 ```
 The module must be compiled and loaded so that it can be found by name, see
 [BeamFile.which/1](file:///Users/kruse/Projects/hrzndhrn/beam_file/doc/BeamFile.html#which/1)
-and [:erlang.whihc/1](https://www.erlang.org/doc/man/code.html#which-1). To give
+and [:erlang.which/1](https://www.erlang.org/doc/man/code.html#which-1). To give
 `BaemFile` in `iex` a try see "Example (iex)" in the next section.
 
 
