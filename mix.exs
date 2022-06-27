@@ -42,7 +42,7 @@ defmodule BeamFile.MixProject do
 
   defp dialyzer do
     [
-      plt_add_apps: [:mix, :syntax_tools, :beam_lib],
+      plt_add_apps: [:mix, :syntax_tools],
       plt_file: {:no_warn, "test/support/plts/dialyzer.plt"},
       flags: [:unmatched_returns]
     ]

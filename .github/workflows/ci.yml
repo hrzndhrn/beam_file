@@ -47,7 +47,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: test/support/plts
-          key: test/support/plts-${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+          key: test/support/plts-x-${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
       - name: Get dependencies
         run: mix deps.get
       - name: Compile dependencies
