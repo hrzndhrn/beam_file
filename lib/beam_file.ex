@@ -4,7 +4,7 @@ defmodule BeamFile do
 
   This module is mainly a wrapper around Erlangs `:beam_lib`.
 
-  For more information see the Erlang documenation for the module
+  For more information see the Erlang documentation for the module
   [`beam_lib`](https://www.erlang.org/doc/man/beam_lib.html)
 
   Furthermore, different code representations can be generated from the file.
