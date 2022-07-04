@@ -3,7 +3,7 @@ defmodule BeamFileTest do
 
   alias BeamFile.Error
 
-  if System.version() =~ "1.13" and :erlang.system_info(:otp_release) == '24' do
+  if System.version() =~ "1.13" and :erlang.system_info(:otp_release) == '25' do
     doctest(BeamFile)
   end
 
@@ -368,7 +368,7 @@ defmodule BeamFileTest do
     end
   end
 
-  if :erlang.system_info(:otp_release) == '24' do
+  if :erlang.system_info(:otp_release) == '25' do
     describe "erl_code/1" do
       test "returns Erlang code for a module" do
         assert BeamFile.erl_code(Math) == @math_erl_code
@@ -408,21 +408,40 @@ defmodule BeamFileTest do
     assert info[:file] =~ "_build/test/lib/beam_file/ebin/Elixir.Math.beam"
     assert info[:module] == Math
 
-    assert [
-             {'AtU8', _, _},
-             {'Code', _, _},
-             {'StrT', _, _},
-             {'ImpT', _, _},
-             {'ExpT', _, _},
-             {'LitT', _, _},
-             {'LocT', _, _},
-             {'Attr', _, _},
-             {'CInf', _, _},
-             {'Dbgi', _, _},
-             {'Docs', _, _},
-             {'ExCk', _, _},
-             {'Line', _, _}
-           ] = info[:chunks]
+    if :erlang.system_info(:otp_release) == '25' do
+      assert [
+               {'AtU8', _, _},
+               {'Code', _, _},
+               {'StrT', _, _},
+               {'ImpT', _, _},
+               {'ExpT', _, _},
+               {'LitT', _, _},
+               {'LocT', _, _},
+               {'Attr', _, _},
+               {'CInf', _, _},
+               {'Dbgi', _, _},
+               {'Docs', _, _},
+               {'ExCk', _, _},
+               {'Line', _, _},
+               {'Type', _, _}
+             ] = info[:chunks]
+    else
+      assert [
+               {'AtU8', _, _},
+               {'Code', _, _},
+               {'StrT', _, _},
+               {'ImpT', _, _},
+               {'ExpT', _, _},
+               {'LitT', _, _},
+               {'LocT', _, _},
+               {'Attr', _, _},
+               {'CInf', _, _},
+               {'Dbgi', _, _},
+               {'Docs', _, _},
+               {'ExCk', _, _},
+               {'Line', _, _}
+             ] = info[:chunks]
+    end
   end
 
   describe "info/1" do

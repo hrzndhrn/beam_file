@@ -283,7 +283,7 @@ defmodule BeamFile do
       [
         :beam_file,
         BeamFile.Example,
-        [{:__info__, 1, 2}, {:hello, 0, 9}, {:module_info, 0, 11}, {:module_info, 1, 13}]
+        [{:__info__, 1, 2}, {:hello, 0, 10}, {:module_info, 0, 12}, {:module_info, 1, 14}]
       ]
   """
   @spec byte_code(input()) :: {:ok, term()} | {:error, any()}
@@ -642,7 +642,8 @@ defmodule BeamFile do
         'Line',
         'LitT',
         'LocT',
-        'StrT'
+        'StrT',
+        'Type'
       ]
   """
   @spec info(input()) :: {:ok, info()} | {:error, reason()}
