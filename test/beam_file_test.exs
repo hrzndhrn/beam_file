@@ -7,10 +7,6 @@ defmodule BeamFileTest do
     doctest(BeamFile)
   end
 
-  fixture = fn
-    file -> "test/fixtures/#{file}/" |> Code.eval_file() |> elem(0)
-  end
-
   fixture_version = fn
     file -> "test/fixtures/#{System.version()}/#{file}/" |> Code.eval_file() |> elem(0)
   end
@@ -19,7 +15,7 @@ defmodule BeamFileTest do
   @math_abstract_code fixture_version.("math_abstract_code.exs")
   @math_debug_info fixture_version.("math_debug_info.exs")
   @math_docs fixture_version.("math_docs.exs")
-  @math_erl_code fixture.("math_erl_code.exs")
+  @math_erl_code fixture_version.("math_erl_code.exs")
 
   describe "abstract_code/1" do
     test "returns abstract code for module" do
