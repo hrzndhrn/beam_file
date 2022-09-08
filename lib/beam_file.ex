@@ -858,10 +858,7 @@ defmodule BeamFile do
             :none
 
           {:ok, doc} ->
-            {doc_start, doc_end} =
-              if String.contains?(doc, ~S|"""|),
-                do: {~S|~s'''|, ~S|'''|},
-                else: {~S|"""|, ~S|"""|}
+            {doc_start, doc_end} = doc_start_end(doc)
 
             doc = """
             @doc #{doc_start}
@@ -879,10 +876,12 @@ defmodule BeamFile do
   defp moduledoc({doc, _, _}) do
     case Map.fetch(doc, @default_lang) do
       {:ok, str} ->
+        {doc_start, doc_end} = doc_start_end(str)
+
         str = """
-        \"""
+        #{doc_start}
         #{str}
-        \"""
+        #{doc_end}
         """
 
         code = ["@moduledoc", @blank, str, @new_paragraph]
@@ -893,6 +892,12 @@ defmodule BeamFile do
         :none
     end
     |> List.wrap()
+  end
+
+  defp doc_start_end(doc) do
+    if String.contains?(doc, ~S|"""|),
+      do: {~S|~s'''|, ~S|'''|},
+      else: {~S|"""|, ~S|"""|}
   end
 
   defp line(meta), do: Keyword.get(meta, :line, 0)
