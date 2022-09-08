@@ -17,6 +17,14 @@ BeamFile provides different views to the data in a BEAM file:
 The reconstructed Elixir code is not the original code. In this code all macros
 and reference are resolved.
 
+A `mix` task is also provided for decompiling modules.
+
+```shell
+$ mix beam.file MyModule --elixir
+$ mix beam.file MyModule --erlang
+$ mix beam.file MyModule --byte-code
+```
+
 ## Example
 
 Assume we have an BEAM file compiled form the following source.

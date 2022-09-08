@@ -858,10 +858,15 @@ defmodule BeamFile do
             :none
 
           {:ok, doc} ->
+            {doc_start, doc_end} =
+              if String.contains?(doc, ~S|"""|),
+                do: {~S|~s'''|, ~S|'''|},
+                else: {~S|"""|, ~S|"""|}
+
             doc = """
-            @doc \"""
+            @doc #{doc_start}
             #{doc}
-            \"""
+            #{doc_end}
             """
 
             {doc, {line, 0, @doc_}}
