@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0 - 2022/09/08
+
++ Add `mix` task `beam.file`.
+
 ## 0.3.3 - 2022/06/08
 
 + Update docs.
