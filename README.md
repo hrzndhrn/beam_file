@@ -1,6 +1,6 @@
 # BeamFile
 [![Hex.pm: version](https://img.shields.io/hexpm/v/beam_file.svg?style=flat-square)](https://hex.pm/packages/beam_file)
-[![GitHub: CI status](https://img.shields.io/github/workflow/status/hrzndhrn/beam_file/CI?style=flat-square)](https://github.com/hrzndhrn/beam_file/actions)
+[![GitHub: CI status](https://img.shields.io/github/actions/workflow/status/hrzndhrn/beam_file/ci.yml?branch=main&style=flat-square)](https://github.com/hrzndhrn/beam_file/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://github.com/hrzndhrn//blob/main/LICENSE.md)
 
 A little fun project to get a peek into BEAM files. For now, this project is in
