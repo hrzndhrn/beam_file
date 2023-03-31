@@ -7,15 +7,11 @@ defmodule BeamFileTest do
     doctest(BeamFile)
   end
 
-  fixture_version = fn
-    file -> "test/fixtures/#{System.version()}/#{file}/" |> Code.eval_file() |> elem(0)
-  end
-
   @math_beam_path "_build/test/lib/beam_file/ebin/Elixir.Math.beam"
-  @math_abstract_code fixture_version.("math_abstract_code.exs")
-  @math_debug_info fixture_version.("math_debug_info.exs")
-  @math_docs fixture_version.("math_docs.exs")
-  @math_erl_code fixture_version.("math_erl_code.exs")
+  @math_abstract_code TestSupport.fixture_version("math_abstract_code.exs")
+  @math_debug_info TestSupport.fixture_version("math_debug_info.exs")
+  @math_docs TestSupport.fixture_version("math_docs.exs")
+  @math_erl_code TestSupport.fixture_version("math_erl_code.exs")
 
   describe "abstract_code/1" do
     test "returns abstract code for module" do
@@ -326,12 +322,14 @@ defmodule BeamFileTest do
   describe "elixir_code/2" do
     test "returns elixir code for the Math module" do
       assert {:ok, code} = BeamFile.elixir_code(Math)
-      assert code <> "\n" == File.read!("test/fixtures/#{System.version()}/math.exs")
+      assert code <> "\n" == File.read!("test/fixtures/#{TestSupport.system_version()}/math.exs")
     end
 
     test "returns elixir code for the Math module without docs" do
       assert {:ok, code} = BeamFile.elixir_code(Math, docs: false)
-      assert code <> "\n" == File.read!("test/fixtures/#{System.version()}/math_without_docs.exs")
+
+      assert code <> "\n" ==
+               File.read!("test/fixtures/#{TestSupport.system_version()}/math_without_docs.exs")
     end
 
     test "returns elixir code for the Default module" do
@@ -352,7 +350,7 @@ defmodule BeamFileTest do
   describe "elixir_code!/2" do
     test "returns elixir code for the Math module" do
       assert BeamFile.elixir_code!(Math) <> "\n" ==
-               File.read!("test/fixtures/#{System.version()}/math.exs")
+               File.read!("test/fixtures/#{TestSupport.system_version()}/math.exs")
     end
 
     test "raises an error for an unknown module" do
