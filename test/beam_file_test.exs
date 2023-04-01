@@ -345,8 +345,11 @@ defmodule BeamFileTest do
     test "returns elixir code with super" do
       assert {:ok, default} = BeamFile.elixir_code(DefaultMod)
       assert {:ok, inherit} = BeamFile.elixir_code(InheritMod)
-      code = "#{default}\n\n#{inherit}"
-      assert code <> "\n" == File.read!("test/fixtures/super.exs")
+
+      if TestSupport.version?("~> 1.14") do
+        code = "#{default}\n\n#{inherit}"
+        assert code <> "\n" == File.read!("test/fixtures/super.exs")
+      end
     end
 
     test "returns elixir code with multiple whens" do
