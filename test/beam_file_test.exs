@@ -342,6 +342,21 @@ defmodule BeamFileTest do
       assert code <> "\n" == File.read!("test/fixtures/delegate.exs")
     end
 
+    test "returns elixir code with super" do
+      assert {:ok, default} = BeamFile.elixir_code(DefaultMod)
+      assert {:ok, inherit} = BeamFile.elixir_code(InheritMod)
+
+      if TestSupport.version?("~> 1.14") do
+        code = "#{default}\n\n#{inherit}"
+        assert code <> "\n" == File.read!("test/fixtures/super.exs")
+      end
+    end
+
+    test "returns elixir code with multiple whens" do
+      assert {:ok, code} = BeamFile.elixir_code(MultiWhen)
+      assert code <> "\n" == File.read!("test/fixtures/multi_when.exs")
+    end
+
     test "returns an error for invalid binary" do
       assert BeamFile.elixir_code(<<0, 0, 7>>) == {:error, {:not_a_beam_file, <<0, 0, 7>>}}
     end

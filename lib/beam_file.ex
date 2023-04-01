@@ -775,8 +775,10 @@ defmodule BeamFile do
   defp fun(meta, index) do
     line = line(meta)
     kind = meta[:kind]
-    name = meta[:name]
-    code = [to_string(kind), @blank, to_string(name)]
+    name = to_string(meta[:name])
+    name = if String.contains?(name, @blank), do: ~s|unquote(:"#{name}")|, else: name
+
+    code = [to_string(kind), @blank, name]
 
     {code, {line, index, @fun}}
   end
@@ -800,9 +802,9 @@ defmodule BeamFile do
   defp guards(guards, meta, index) do
     line = line(meta)
 
-    code = Enum.map(guards, &code_to_string/1)
+    code = Enum.map(guards, fn guard -> ["when", @blank, code_to_string(guard)] end)
 
-    {[@blank, "when ", code, @blank], {line, index, @guards}}
+    {[@blank, code, @blank], {line, index, @guards}}
   end
 
   defp block({:__block__, [], block}, meta, index), do: do_block(block, meta, index)
