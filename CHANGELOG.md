@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.1 - 2023/04/01
+
++ Fix `BeamFile.elixir_code/2`
+
 ## 0.4.0 - 2022/09/08
 
 + Add `mix` task `beam.file`.
