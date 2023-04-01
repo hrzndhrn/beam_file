@@ -343,15 +343,15 @@ defmodule BeamFileTest do
     end
 
     test "returns elixir code with super" do
-      # assert {:ok, default_mod} = BeamFile.elixir_code(DefaultMod)
-      assert {:ok, inherit_mod} = BeamFile.elixir_code(InheritMod)
-      assert inherit_mod == "todo"
+      assert {:ok, default} = BeamFile.elixir_code(DefaultMod)
+      assert {:ok, inherit} = BeamFile.elixir_code(InheritMod)
+      code = "#{default}\n\n#{inherit}"
+      assert code <> "\n" == File.read!("test/fixtures/super.exs")
     end
 
     test "returns elixir code with multiple whens" do
-      # assert {:ok, default_mod} = BeamFile.elixir_code(DefaultMod)
-      assert {:ok, none_zero} = BeamFile.elixir_code(NoneZero)
-      assert none_zero == "todo"
+      assert {:ok, code} = BeamFile.elixir_code(MultiWhen)
+      assert code <> "\n" == File.read!("test/fixtures/multi_when.exs")
     end
 
     test "returns an error for invalid binary" do

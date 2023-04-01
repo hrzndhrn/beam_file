@@ -802,11 +802,9 @@ defmodule BeamFile do
   defp guards(guards, meta, index) do
     line = line(meta)
 
-    code = Enum.map(guards, &code_to_string/1)
+    code = Enum.map(guards, fn guard -> ["when", @blank, code_to_string(guard)] end)
 
-    IO.inspect(code, label: :guards)
-    # TODO
-    {[@blank, "when ", code, @blank], {line, index, @guards}}
+    {[@blank, code, @blank], {line, index, @guards}}
   end
 
   defp block({:__block__, [], block}, meta, index), do: do_block(block, meta, index)
