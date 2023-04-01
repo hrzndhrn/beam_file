@@ -775,8 +775,10 @@ defmodule BeamFile do
   defp fun(meta, index) do
     line = line(meta)
     kind = meta[:kind]
-    name = meta[:name]
-    code = [to_string(kind), @blank, to_string(name)]
+    name = to_string(meta[:name])
+    name = if String.contains?(name, @blank), do: ~s|unquote(:"#{name}")|, else: name
+
+    code = [to_string(kind), @blank, name]
 
     {code, {line, index, @fun}}
   end
@@ -802,6 +804,8 @@ defmodule BeamFile do
 
     code = Enum.map(guards, &code_to_string/1)
 
+    IO.inspect(code, label: :guards)
+    # TODO
     {[@blank, "when ", code, @blank], {line, index, @guards}}
   end
 
