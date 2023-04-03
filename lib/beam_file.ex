@@ -807,29 +807,39 @@ defmodule BeamFile do
     {[@blank, code, @blank], {line, index, @guards}}
   end
 
-  defp block({:__block__, [], block}, meta, index), do: do_block(block, meta, index)
+  defp block({:__block__, [], block}, meta, index) do
+    line = line(meta)
+    code = block |> update_block() |> Enum.map_join(@new_line, &code_to_string/1) |> do_block()
+
+    {code, {line, index, @block}}
+  end
 
   defp block({:super, context, args}, meta, index) do
     line = line(meta)
-    code = code_to_string({meta[:name], context, args})
-    code = ["do", @new_line, code, @new_line, "end", @new_paragraph]
+    code = {meta[:name], context, args} |> code_to_string() |> do_block()
 
     {code, {line, index, @super}}
   end
 
   defp block(block, meta, index) do
     line = line(meta)
-    code = ["do", @new_line, code_to_string(block), @new_line, "end", @new_paragraph]
-    {code, {line, index, @block}}
-  end
-
-  defp do_block(block, meta, index) when is_list(block) do
-    line = line(meta)
-    code = Enum.map_join(block, @new_line, &code_to_string/1)
-    code = ["do", @new_line, code, @new_line, "end", @new_paragraph]
+    code = block |> update_block() |> code_to_string() |> do_block()
 
     {code, {line, index, @block}}
   end
+
+  defp do_block(code), do: ["do", @new_line, code, @new_line, "end", @new_paragraph]
+
+  defp update_block(block) when is_list(block), do: Enum.map(block, &update_block/1)
+
+  defp update_block({:super, meta, args}) do
+    {_kind, name} = meta[:super]
+    {{:unquote, meta, [name]}, meta, update_block(args)}
+  end
+
+  defp update_block({expr, meta, args}), do: {expr, meta, update_block(args)}
+
+  defp update_block(block), do: block
 
   defp docs(code, module, opts) do
     with {:docs, true} <- {:docs, Keyword.get(opts, :docs, true)},

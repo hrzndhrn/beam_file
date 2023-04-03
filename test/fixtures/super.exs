@@ -28,6 +28,6 @@ defmodule Elixir.InheritMod do
   end
 
   def test(x, y) do
-    :erlang.+(:erlang.*(x, y), super(x, y))
+    :erlang.+(:erlang.*(x, y), unquote(:"test (overridable 1)")(x, y))
   end
 end

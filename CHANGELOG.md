@@ -1,20 +1,24 @@
 # Changelog
 
+## 0.4.2 - 2023/04/03
+
++ Expand `super/1`
+
 ## 0.4.1 - 2023/04/01
 
 + Fix `BeamFile.elixir_code/2`
 
 ## 0.4.0 - 2022/09/08
 
-+ Add `mix` task `beam.file`.
++ Add `mix` task `beam.file`
 
 ## 0.3.3 - 2022/06/08
 
-+ Update docs.
++ Update docs
 
 ## 0.3.2 - 2022/03/09
 
-+ Fix return value for `BeamFile.debug_info/1` when no debug info is available.
++ Fix return value for `BeamFile.debug_info/1` when no debug info is available
 
 ## 0.3.1 - 2022/02/25
 
