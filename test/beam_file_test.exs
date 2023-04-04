@@ -360,25 +360,15 @@ defmodule BeamFileTest do
     test "returns an error for invalid binary" do
       assert BeamFile.elixir_code(<<0, 0, 7>>) == {:error, {:not_a_beam_file, <<0, 0, 7>>}}
     end
-
-    test "is able to generate code for all Elixir standard library modules" do
-      modules =
-        Application.spec(:elixir)[:modules]
-        |> Enum.filter(fn module ->
-          module
-          |> to_string()
-          |> String.starts_with?("Elixir.")
-        end)
-
-      Enum.each(modules, fn module ->
-        try do
-          assert {:ok, _code} = BeamFile.elixir_code(module)
-        rescue
-          error ->
-            reraise %{error | file: to_string(module)}, __STACKTRACE__
-          end
-      end)
-    end
+    :elixir
+    |> Application.spec(:modules)
+    |> Enum.each(fn module ->
+      unless module |> to_string |> String.starts_with?("elixir_") do
+        test "returns elixir code for #{inspect(module)}" do
+          assert {:ok, _code} = BeamFile.elixir_code(unquote(module))
+        end
+      end
+    end)
   end
 
   describe "elixir_code!/2" do
