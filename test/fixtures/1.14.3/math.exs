@@ -33,6 +33,13 @@ defmodule Elixir.Math do
     :erlang.div(a, b)
   end
 
+  @doc """
+  Returns the biggest.
+  """
+  defmacro biggest(a, b) do
+    {:max, [context: Math, imports: [{2, Kernel}]], [a, b]}
+  end
+
   def odd_or_even(a) do
     case :erlang.==(:erlang.rem(a, 2), 0) do
       false -> :odd

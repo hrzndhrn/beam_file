@@ -12,11 +12,13 @@ defmodule BeamFile do
   - `BeamFile.byte_code/1`
   - `BeamFile.erl_code/1`
   - `BeamFile.elixir_code/2`
+  - `BeamFile.elixir_ast/1`
 
   To use the functions above with a module name the module must be compiled
   and loaded. The functions can also be used with the binary of a module.
   """
 
+  alias BeamFile.DebugInfo
   alias BeamFile.Error
 
   @type info :: [
@@ -95,89 +97,146 @@ defmodule BeamFile do
     :locals
   ]
 
-  @default_lang "en"
-
-  @blank " "
-  @new_line "\n"
-  @new_paragraph "\n\n"
-
-  @doc_ -2
-  # @spec_ -1
-  @fun 0
-  @args 1
-  @super 2
-  @guards 3
-  @block 4
-
   @doc """
   Returns the `:abstract_code` chunk.
 
   ## Examples
 
       iex> BeamFile.abstract_code(BeamFile.Example)
-      {:ok,
-       [
-         {:attribute, 1, :file, {'test/fixtures/example.ex', 1}},
-         {:attribute, 1, :module, BeamFile.Example},
-         {:attribute, 1, :compile, [:no_auto_import]},
-         {:attribute, 1, :export, [__info__: 1, hello: 0]},
-         {:attribute, 1, :spec,
-          {{:__info__, 1},
-           [
-             {:type, 1, :fun,
+      {
+        :ok,
+        [
+          {:attribute, 1, :file, {'test/fixtures/example.ex', 1}},
+          {:attribute, 1, :module, BeamFile.Example},
+          {:attribute, 1, :compile, [:no_auto_import]},
+          {:attribute, 1, :export, [__info__: 1, hello: 0]},
+          {
+            :attribute,
+            1,
+            :spec,
+            {
+              {:__info__, 1},
               [
-                {:type, 1, :product,
-                 [
-                   {:type, 1, :union,
-                    [
-                      {:atom, 1, :attributes},
-                      {:atom, 1, :compile},
-                      {:atom, 1, :functions},
-                      {:atom, 1, :macros},
-                      {:atom, 1, :md5},
-                      {:atom, 1, :exports_md5},
-                      {:atom, 1, :module},
-                      {:atom, 1, :deprecated}
-                    ]}
-                 ]},
-                {:type, 1, :any, []}
-              ]}
-           ]}},
-         {:function, 0, :__info__, 1,
-          [
-            {:clause, 0, [{:atom, 0, :module}], [], [{:atom, 0, BeamFile.Example}]},
-            {:clause, 0, [{:atom, 0, :functions}], [],
-             [{:cons, 0, {:tuple, 0, [{:atom, 0, :hello}, {:integer, 0, 0}]}, {nil, 0}}]},
-            {:clause, 0, [{:atom, 0, :macros}], [], [nil: 0]},
-            {:clause, 0, [{:atom, 0, :exports_md5}], [],
-             [
-               {:bin, 0,
+                {
+                  :type,
+                  1,
+                  :fun,
+                  [
+                    {
+                      :type,
+                      1,
+                      :product,
+                      [
+                        {
+                          :type,
+                          1,
+                          :union,
+                          [
+                            {:atom, 1, :attributes},
+                            {:atom, 1, :compile},
+                            {:atom, 1, :functions},
+                            {:atom, 1, :macros},
+                            {:atom, 1, :md5},
+                            {:atom, 1, :exports_md5},
+                            {:atom, 1, :module},
+                            {:atom, 1, :deprecated},
+                            {:atom, 1, :struct}
+                          ]
+                        }
+                      ]
+                    },
+                    {:type, 1, :any, []}
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            :function,
+            0,
+            :__info__,
+            1,
+            [
+              {:clause, 0, [{:atom, 0, :module}], [], [{:atom, 0, BeamFile.Example}]},
+              {
+                :clause,
+                0,
+                [{:atom, 0, :functions}],
+                [],
+                [{:cons, 0, {:tuple, 0, [{:atom, 0, :hello}, {:integer, 0, 0}]}, {nil, 0}}]
+              },
+              {:clause, 0, [{:atom, 0, :macros}], [], [nil: 0]},
+              {:clause, 0, [{:atom, 0, :struct}], [], [{:atom, 0, nil}]},
+              {
+                :clause,
+                0,
+                [{:atom, 0, :exports_md5}],
+                [],
                 [
-                  {:bin_element, 0,
-                   {:string, 0,
-                    [240, 105, 247, 119, 22, 50, 219, 207, 90, 95, 127, 92, 159, 46, 131, 169]},
-                   :default, :default}
-                ]}
-             ]},
-            {:clause, 0, [{:match, 0, {:var, 0, :Key}, {:atom, 0, :attributes}}], [],
-             [
-               {:call, 0, {:remote, 0, {:atom, 0, :erlang}, {:atom, 0, :get_module_info}},
-                [{:atom, 0, BeamFile.Example}, {:var, 0, :Key}]}
-             ]},
-            {:clause, 0, [{:match, 0, {:var, 0, :Key}, {:atom, 0, :compile}}], [],
-             [
-               {:call, 0, {:remote, 0, {:atom, 0, :erlang}, {:atom, 0, :get_module_info}},
-                [{:atom, 0, BeamFile.Example}, {:var, 0, :Key}]}
-             ]},
-            {:clause, 0, [{:match, 0, {:var, 0, :Key}, {:atom, 0, :md5}}], [],
-             [
-               {:call, 0, {:remote, 0, {:atom, 0, :erlang}, {:atom, 0, :get_module_info}},
-                [{:atom, 0, BeamFile.Example}, {:var, 0, :Key}]}
-             ]},
-            {:clause, 0, [{:atom, 0, :deprecated}], [], [nil: 0]}
-          ]},
-         {:function, 2, :hello, 0, [{:clause, 2, [], [], [{:atom, 2, :world}]}]}
-       ]}
+                  {
+                    :bin,
+                    0,
+                    [
+                      {
+                        :bin_element,
+                        0,
+                        {:string, 0,
+                         [240, 105, 247, 119, 22, 50, 219, 207, 90, 95, 127, 92, 159, 46, 131, 169]},
+                        :default,
+                        :default
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                :clause,
+                0,
+                [{:match, 0, {:var, 0, :Key}, {:atom, 0, :attributes}}],
+                [],
+                [
+                  {
+                    :call,
+                    0,
+                    {:remote, 0, {:atom, 0, :erlang}, {:atom, 0, :get_module_info}},
+                    [{:atom, 0, BeamFile.Example}, {:var, 0, :Key}]
+                  }
+                ]
+              },
+              {
+                :clause,
+                0,
+                [{:match, 0, {:var, 0, :Key}, {:atom, 0, :compile}}],
+                [],
+                [
+                  {
+                    :call,
+                    0,
+                    {:remote, 0, {:atom, 0, :erlang}, {:atom, 0, :get_module_info}},
+                    [{:atom, 0, BeamFile.Example}, {:var, 0, :Key}]
+                  }
+                ]
+              },
+              {
+                :clause,
+                0,
+                [{:match, 0, {:var, 0, :Key}, {:atom, 0, :md5}}],
+                [],
+                [
+                  {
+                    :call,
+                    0,
+                    {:remote, 0, {:atom, 0, :erlang}, {:atom, 0, :get_module_info}},
+                    [{:atom, 0, BeamFile.Example}, {:var, 0, :Key}]
+                  }
+                ]
+              },
+              {:clause, 0, [{:atom, 0, :deprecated}], [], [nil: 0]}
+            ]
+          },
+          {:function, 2, :hello, 0, [{:clause, 2, [], [], [{:atom, 2, :world}]}]}
+        ]
+      }
   """
   @spec abstract_code(input()) :: {:ok, term()} | {:error, any()}
   def abstract_code(input) do
@@ -283,7 +342,7 @@ defmodule BeamFile do
       [
         :beam_file,
         BeamFile.Example,
-        [{:__info__, 1, 2}, {:hello, 0, 10}, {:module_info, 0, 12}, {:module_info, 1, 14}]
+        [{:__info__, 1, 2}, {:hello, 0, 11}, {:module_info, 0, 13}, {:module_info, 1, 15}]
       ]
   """
   @spec byte_code(input()) :: {:ok, term()} | {:error, any()}
@@ -460,7 +519,7 @@ defmodule BeamFile do
   For now, types and specs will not be recreated.
 
   Options:
-  `:docs`: With `docs: false` the docs will not be created.
+  `:docs`: With `docs: true` the docs will be created.
 
   ## Examples
 
@@ -486,19 +545,25 @@ defmodule BeamFile do
   end
 
   def elixir_code(input, opts) when is_list(input) or is_binary(input) do
-    with {:ok, debug_info} <- debug_info(input) do
+    with {:ok, debug_info} <- debug_info(input),
+         {:ok, docs} <- docs(input, opts) do
       code =
-        debug_info
-        |> definitions()
-        |> docs(input, opts)
-        |> to_code(debug_info)
+        if docs do
+          DebugInfo.code(debug_info, docs)
+        else
+          debug_info |> DebugInfo.ast() |> Macro.to_string()
+        end
 
       {:ok, code}
     end
   end
 
+  defp docs(input, opts) do
+    if Keyword.get(opts, :docs, false), do: docs(input), else: {:ok, nil}
+  end
+
   @doc """
-  Same as `eleixir_code/1` but raises `BeamFile.Error`
+  Same as `elixir_code/1` but raises `BeamFile.Error`
   """
   @spec elixir_code!(input(), opts :: keyword()) :: String.t()
   def elixir_code!(input, opts \\ []) do
@@ -509,6 +574,31 @@ defmodule BeamFile do
       {:error, reason} ->
         raise Error, """
         Elixir code for #{inspect(input, binaries: :as_binaries)} not available, \
+        reason: #{inspect(reason, binaries: :as_binaries)}\
+        """
+    end
+  end
+
+  @doc """
+  Returns the extended Elixir AST.
+  """
+  def elixir_ast(input) do
+    with {:ok, debug_info} <- debug_info(input) do
+      {:ok, DebugInfo.ast(debug_info)}
+    end
+  end
+
+  @doc """
+  Same as `elixir_ast/1` but raises `BeamFile.Error`
+  """
+  def elixir_ast!(input) do
+    case elixir_ast(input) do
+      {:ok, ast} ->
+        ast
+
+      {:error, reason} ->
+        raise Error, """
+        Elixir AST for #{inspect(input, binaries: :as_binaries)} not available, \
         reason: #{inspect(reason, binaries: :as_binaries)}\
         """
     end
@@ -607,7 +697,6 @@ defmodule BeamFile do
   def exists?(module) do
     case :code.which(module) do
       :non_existing -> false
-      [] -> false
       _path -> true
     end
   end
@@ -747,204 +836,4 @@ defmodule BeamFile do
       error -> {:error, error}
     end
   end
-
-  defp definitions(%{definitions: definitions}) do
-    definitions
-    |> Enum.with_index()
-    |> Enum.flat_map(fn {{{name, _arity}, kind, _meta, clauses}, def_index} ->
-      clauses
-      |> Enum.with_index()
-      |> Enum.flat_map(fn {{meta, args, guards, block}, clause_index} ->
-        index = def_index + clause_index / (length(clauses) + 1)
-
-        meta =
-          meta
-          |> Keyword.put(:name, name)
-          |> Keyword.put(:kind, kind)
-
-        [
-          fun(meta, index),
-          args(args, meta, index),
-          guards(guards, meta, index),
-          block(block, meta, index)
-        ]
-      end)
-    end)
-  end
-
-  defp fun(meta, index) do
-    line = line(meta)
-    kind = meta[:kind]
-    name = to_string(meta[:name])
-    name = if String.contains?(name, @blank), do: ~s|unquote(:"#{name}")|, else: name
-
-    code = [to_string(kind), @blank, name]
-
-    {code, {line, index, @fun}}
-  end
-
-  defp args(args, meta, index) do
-    line = line(meta)
-
-    code =
-      args
-      |> Enum.map(&code_to_string/1)
-      |> case do
-        [] -> @blank
-        code -> ["(", Enum.join(code, ", "), ")", @blank]
-      end
-
-    {code, {line, index, @args}}
-  end
-
-  defp guards([], _, _), do: :none
-
-  defp guards(guards, meta, index) do
-    line = line(meta)
-
-    code = Enum.map(guards, fn guard -> ["when", @blank, code_to_string(guard)] end)
-
-    {[@blank, code, @blank], {line, index, @guards}}
-  end
-
-  defp block({:__block__, [], block}, meta, index) do
-    line = line(meta)
-    code = block |> update_block() |> Enum.map_join(@new_line, &code_to_string/1) |> do_block()
-
-    {code, {line, index, @block}}
-  end
-
-  defp block({:super, context, args}, meta, index) do
-    line = line(meta)
-    code = {meta[:name], context, args} |> code_to_string() |> do_block()
-
-    {code, {line, index, @super}}
-  end
-
-  defp block(block, meta, index) do
-    line = line(meta)
-    code = block |> update_block() |> code_to_string() |> do_block()
-
-    {code, {line, index, @block}}
-  end
-
-  defp do_block(code), do: ["do", @new_line, code, @new_line, "end", @new_paragraph]
-
-  defp update_block(block) when is_list(block), do: Enum.map(block, &update_block/1)
-
-  defp update_block({:super, meta, args}) do
-    {_kind, name} = meta[:super]
-    {{:unquote, meta, [name]}, meta, update_block(args)}
-  end
-
-  defp update_block({expr, meta, args}), do: {expr, meta, update_block(args)}
-
-  defp update_block(block), do: block
-
-  defp docs(code, module, opts) do
-    with {:docs, true} <- {:docs, Keyword.get(opts, :docs, true)},
-         {:ok, docs} <- docs(module) do
-      Enum.concat([
-        code,
-        moduledoc(docs),
-        fundocs(docs)
-      ])
-    else
-      _ -> code
-    end
-  end
-
-  defp fundocs({_doc, _meta, []}), do: [:none]
-
-  defp fundocs({_doc, _meta, docs}) do
-    Enum.map(docs, fn
-      {_fun, _line, _code, :none, _meta} ->
-        :none
-
-      {_fun, _line, _code, :hidden, _meta} ->
-        :none
-
-      {_fun, line, _code, doc, _meta} ->
-        case Map.fetch(doc, @default_lang) do
-          :error ->
-            :none
-
-          {:ok, doc} ->
-            {doc_start, doc_end} = doc_start_end(doc)
-
-            doc = """
-            @doc #{doc_start}
-            #{doc}
-            #{doc_end}
-            """
-
-            {doc, {line, 0, @doc_}}
-        end
-    end)
-  end
-
-  defp moduledoc({doc, _, _}) when doc in [:none, :hidden], do: [:none]
-
-  defp moduledoc({doc, _, _}) do
-    case Map.fetch(doc, @default_lang) do
-      {:ok, str} ->
-        {doc_start, doc_end} = doc_start_end(str)
-
-        str = """
-        #{doc_start}
-        #{str}
-        #{doc_end}
-        """
-
-        code = ["@moduledoc", @blank, str, @new_paragraph]
-
-        {code, {0, 0, @doc_}}
-
-      :error ->
-        :none
-    end
-    |> List.wrap()
-  end
-
-  defp doc_start_end(doc) do
-    if String.contains?(doc, ~S|"""|),
-      do: {~S|~s'''|, ~S|'''|},
-      else: {~S|"""|, ~S|"""|}
-  end
-
-  defp line(meta), do: Keyword.get(meta, :line, 0)
-
-  defp code_to_string(code), do: Macro.to_string(code)
-
-  defp to_code(data, debug_info) do
-    module = Map.get(debug_info, :module) |> to_string()
-
-    code =
-      data
-      |> Enum.filter(fn
-        :none -> false
-        _ -> true
-      end)
-      |> sort()
-      |> strip()
-      |> IO.iodata_to_binary()
-
-    """
-    defmodule #{module} do
-      #{code}
-    end
-    """
-    |> Code.format_string!()
-    |> IO.iodata_to_binary()
-  end
-
-  defp sort(data) do
-    Enum.sort(data, fn
-      {_, {line, index, ord_a}}, {_, {line, index, ord_b}} -> ord_a <= ord_b
-      {_, {line, index_a, _}}, {_, {line, index_b, _}} -> index_a <= index_b
-      {_, {line_a, _, _}}, {_, {line_b, _, _}} -> line_a <= line_b
-    end)
-  end
-
-  defp strip(data), do: Enum.map(data, fn {iodata, _} -> iodata end)
 end

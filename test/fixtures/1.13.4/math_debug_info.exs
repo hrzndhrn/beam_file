@@ -5,93 +5,111 @@
      attributes: [],
      compile_opts: [],
      definitions: [
-       {{:triple, 1}, :def, [line: 25],
+       {{:triple, 1}, :def, [line: 34],
         [
-          {[line: 25], [{:number, [version: 0, line: 25], nil}], [],
-           {{:., [line: 25], [:erlang, :*]}, [line: 25],
-            [3, {:number, [version: 0, line: 25], nil}]}}
+          {[line: 34], [{:number, [version: 0, line: 34], nil}], [],
+           {{:., [line: 34], [:erlang, :*]}, [line: 34],
+            [3, {:number, [version: 0, line: 34], nil}]}}
         ]},
-       {{:pi, 0}, :def, [line: 46],
+       {{:pi, 0}, :def, [line: 64],
         [
-          {[line: 46], [], [], {{:., [line: 46], [Math.Const, :pi]}, [line: 46], []}}
+          {[line: 64], [], [], {{:., [line: 64], [Math.Const, :pi]}, [line: 64], []}}
         ]},
-       {{:odd_or_even, 1}, :def, [line: 38],
+       {{:odd_or_even, 1}, :def, [line: 56],
         [
-          {[line: 38], [{:a, [version: 0, line: 38], nil}], [],
-           {:case, [line: 39, optimize_boolean: true],
+          {[line: 56], [{:a, [version: 0, line: 56], nil}], [],
+           {:case, [line: 57, optimize_boolean: true],
             [
-              {{:., [line: 39], [:erlang, :==]}, [line: 39],
+              {{:., [line: 57], [:erlang, :==]}, [line: 57],
                [
-                 {{:., [line: 39], [:erlang, :rem]}, [line: 39],
-                  [{:a, [version: 0, line: 39], nil}, 2]},
+                 {{:., [line: 57], [:erlang, :rem]}, [line: 57],
+                  [{:a, [version: 0, line: 57], nil}, 2]},
                  0
                ]},
               [
                 do: [
-                  {:->, [generated: true, line: 39], [[false], :odd]},
-                  {:->, [generated: true, line: 39], [[true], :even]}
+                  {:->, [generated: true, line: 57], [[false], :odd]},
+                  {:->, [generated: true, line: 57], [[true], :even]}
                 ]
               ]
             ]}}
         ]},
-       {{:double, 1}, :def, [line: 21],
+       {{:double, 1}, :def, [line: 28],
         [
-          {[line: 21], [{:number, [version: 0, line: 21], nil}], [],
-           {:add, [line: 21],
+          {[line: 28], [{:number, [version: 0, line: 28], nil}], [],
+           {:add, [line: 28],
             [
-              {{:number, [version: 0, line: 21], nil}, {:number, [version: 0, line: 21], nil}}
+              {{:number, [version: 0, line: 28], nil}, {:number, [version: 0, line: 28], nil}}
             ]}}
         ]},
-       {{:divide, 2}, :def, [line: 34],
+       {{:divide, 2}, :def, [line: 43],
         [
-          {[line: 34],
+          {[line: 43],
            [
-             {:a, [version: 0, line: 34], nil},
-             {:b, [version: 1, line: 34], nil}
+             {:a, [version: 0, line: 43], nil},
+             {:b, [version: 1, line: 43], nil}
            ],
            [
-             {{:., [line: 34], [:erlang, :"/="]}, [line: 34],
-              [{:b, [version: 1, line: 34], nil}, 0]}
+             {{:., [line: 43], [:erlang, :"/="]}, [line: 43],
+              [{:b, [version: 1, line: 43], nil}, 0]}
            ],
-           {{:., [line: 35], [:erlang, :div]}, [line: 35],
+           {{:., [line: 44], [:erlang, :div]}, [line: 44],
             [
-              {:a, [version: 0, line: 35], nil},
-              {:b, [version: 1, line: 35], nil}
+              {:a, [version: 0, line: 44], nil},
+              {:b, [version: 1, line: 44], nil}
             ]}}
         ]},
-       {{:add, 2}, :def, [line: 15],
+       {{:biggest, 2}, :defmacro, [line: 50],
         [
-          {[line: 15],
+          {[line: 50],
            [
-             {:number_a, [version: 0, line: 15], nil},
-             {:number_b, [version: 1, line: 15], nil}
+             {:a, [version: 0, line: 50], nil},
+             {:b, [version: 1, line: 50], nil}
            ], [],
-           {{:., [line: 16], [:erlang, :+]}, [line: 16],
+           {:{}, [],
             [
-              {:number_a, [version: 0, line: 16], nil},
-              {:number_b, [version: 1, line: 16], nil}
+              :max,
+              [context: Math, import: Kernel],
+              [
+                {:a, [version: 0, line: 52], nil},
+                {:b, [version: 1, line: 52], nil}
+              ]
             ]}}
         ]},
-       {{:add, 1}, :defp, [line: 28],
+       {{:add, 2}, :def, [line: 20],
         [
-          {[line: 28], [{:nums, [version: 0, line: 28], nil}], [],
+          {[line: 20],
+           [
+             {:number_a, [version: 0, line: 20], nil},
+             {:number_b, [version: 1, line: 20], nil}
+           ], [],
+           {{:., [line: 21], [:erlang, :+]}, [line: 21],
+            [
+              {:number_a, [version: 0, line: 21], nil},
+              {:number_b, [version: 1, line: 21], nil}
+            ]}}
+        ]},
+       {{:add, 1}, :defp, [line: 37],
+        [
+          {[line: 37], [{:nums, [version: 0, line: 37], nil}], [],
            {:__block__, [],
             [
-              {:=, [line: 29],
+              {:=, [line: 38],
                [
-                 {{:number_a, [version: 1, line: 29], nil},
-                  {:number_b, [version: 2, line: 29], nil}},
-                 {:nums, [version: 0, line: 29], nil}
+                 {{:number_a, [version: 1, line: 38], nil},
+                  {:number_b, [version: 2, line: 38], nil}},
+                 {:nums, [version: 0, line: 38], nil}
                ]},
-              {:add, [line: 30],
+              {:add, [line: 39],
                [
-                 {:number_a, [version: 1, line: 30], nil},
-                 {:number_b, [version: 2, line: 30], nil}
+                 {:number_a, [version: 1, line: 39], nil},
+                 {:number_b, [version: 2, line: 39], nil}
                ]}
             ]}}
         ]}
      ],
      deprecated: [],
+     file: "/Users/kruse/Projects/hrzndhrn/beam_file/test/fixtures/math.ex",
      is_behaviour: false,
      line: 1,
      module: Math,
@@ -100,60 +118,61 @@
      unreachable: []
    },
    [
-     {:attribute, 24, :spec,
-      {{:triple, 1},
-       [
-         {:type, 24, :fun,
-          [
-            {:type, 24, :product, [{:user_type, 24, :num, []}]},
-            {:user_type, 24, :x, []}
-          ]}
-       ]}},
-     {:attribute, 20, :spec,
-      {{:double, 1},
-       [
-         {:type, 20, :fun,
-          [
-            {:type, 20, :product, [{:user_type, 20, :num, []}]},
-            {:user_type, 20, :x, []}
-          ]}
-       ]}},
      {:attribute, 33, :spec,
-      {{:divide, 2},
+      {{:triple, 1},
        [
          {:type, 33, :fun,
           [
-            {:type, 33, :product, [{:user_type, 33, :num, []}, {:user_type, 33, :num, []}]},
+            {:type, 33, :product, [{:user_type, 33, :num, []}]},
             {:user_type, 33, :x, []}
           ]}
        ]}},
-     {:attribute, 14, :spec,
-      {{:add, 2},
-       [
-         {:type, 14, :fun,
-          [
-            {:type, 14, :product,
-             [
-               {:type, 14, :union,
-                [{:user_type, 14, :num, []}, {:user_type, 14, :num_tuple, []}]},
-               {:user_type, 14, :num, []}
-             ]},
-            {:user_type, 14, :x, []}
-          ]}
-       ]}},
      {:attribute, 27, :spec,
-      {{:add, 1},
+      {{:double, 1},
        [
          {:type, 27, :fun,
           [
-            {:type, 27, :product, [{:user_type, 27, :num_tuple, []}]},
+            {:type, 27, :product, [{:user_type, 27, :num, []}]},
             {:user_type, 27, :x, []}
           ]}
        ]}},
-     {:attribute, 9, :type,
-      {:num_tuple, {:type, 0, :tuple, [{:user_type, 9, :num, []}, {:user_type, 9, :num, []}]}, []}},
-     {:attribute, 7, :export_type, [x: 0]},
-     {:attribute, 7, :opaque, {:x, {:user_type, 7, :num, []}, []}},
-     {:attribute, 6, :export_type, [num: 0]},
-     {:attribute, 6, :type, {:num, {:type, 6, :integer, []}, []}}
+     {:attribute, 42, :spec,
+      {{:divide, 2},
+       [
+         {:type, 42, :fun,
+          [
+            {:type, 42, :product, [{:user_type, 42, :num, []}, {:user_type, 42, :num, []}]},
+            {:user_type, 42, :x, []}
+          ]}
+       ]}},
+     {:attribute, 19, :spec,
+      {{:add, 2},
+       [
+         {:type, 19, :fun,
+          [
+            {:type, 19, :product,
+             [
+               {:type, 19, :union,
+                [{:user_type, 19, :num, []}, {:user_type, 19, :num_tuple, []}]},
+               {:user_type, 19, :num, []}
+             ]},
+            {:user_type, 19, :x, []}
+          ]}
+       ]}},
+     {:attribute, 36, :spec,
+      {{:add, 1},
+       [
+         {:type, 36, :fun,
+          [
+            {:type, 36, :product, [{:user_type, 36, :num_tuple, []}]},
+            {:user_type, 36, :x, []}
+          ]}
+       ]}},
+     {:attribute, 12, :type,
+      {:num_tuple, {:type, 0, :tuple, [{:user_type, 12, :num, []}, {:user_type, 12, :num, []}]},
+       []}},
+     {:attribute, 10, :export_type, [x: 0]},
+     {:attribute, 10, :opaque, {:x, {:user_type, 10, :num, []}, []}},
+     {:attribute, 9, :export_type, [num: 0]},
+     {:attribute, 9, :type, {:num, {:type, 9, :integer, []}, []}}
    ]}}}

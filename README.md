@@ -51,12 +51,10 @@ and [:erlang.which/1](https://www.erlang.org/doc/man/code.html#which-1). To give
 
 Than we can reconstruct Elixir code:
 ```elixir
-iex> {:ok, code} = BeamFile.elixir_code(Example.Math)
+iex> {:ok, code} = BeamFile.elixir_code(Example.Math, docs: true)
 iex> IO.puts(code)
 defmodule Elixir.Example.Math do
-  @moduledoc """
-  Math is Fun
-  """
+  @moduledoc "Math is Fun"
 
   def add(number_a, number_b) do
     :erlang.+(number_a, number_b)

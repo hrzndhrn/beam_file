@@ -1,13 +1,13 @@
 defmodule DefaultMod do
   defmacro __using__(_opts) do
     quote do
-      def test(x, y) do
+      def bar(x, y) do
         x + y
       end
 
       def foo(x), do: x
 
-      defoverridable test: 2, foo: 1
+      defoverridable bar: 2, foo: 1
     end
   end
 end
@@ -15,7 +15,7 @@ end
 defmodule InheritMod do
   use DefaultMod
 
-  def test(x, y) do
+  def bar(x, y) do
     x * y + super(x, y)
   end
 end
