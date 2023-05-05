@@ -72,6 +72,10 @@ defmodule BeamFileTest do
       assert {:ok, _chunks} = BeamFile.all_chunks(Math)
     end
 
+    test "returns all chunks for a tuple with default type" do
+      assert {:ok, _chunks} = BeamFile.all_chunks({:module, Math, BeamFile.read!(Math), []})
+    end
+
     test "returns all chunks for a module with type ids" do
       assert {:ok, _chunks} = BeamFile.all_chunks(Math, :ids)
     end
@@ -138,6 +142,12 @@ defmodule BeamFileTest do
       assert elem(byte_code, 1) == Math
     end
 
+    test "returns the byte code for tuple" do
+      assert {:ok, byte_code} = BeamFile.byte_code({:module, Math, BeamFile.read!(Math), []})
+      assert elem(byte_code, 0) == :beam_file
+      assert elem(byte_code, 1) == Math
+    end
+
     test "returns the byte code for the beam file at the given path" do
       path = String.to_charlist(@math_beam_path)
 
@@ -177,8 +187,13 @@ defmodule BeamFileTest do
   end
 
   describe "chunk/2" do
-    test "return chunk Dbgi for  a module" do
+    test "return chunk Dbgi for a module" do
       assert {:ok, dbgi} = BeamFile.chunk(Math, 'Dbgi')
+      assert is_binary(dbgi) == true
+    end
+
+    test "return chunk Dbgi for a tuple" do
+      assert {:ok, dbgi} = BeamFile.chunk({:module, Math, BeamFile.read!(Math), []}, 'Dbgi')
       assert is_binary(dbgi) == true
     end
 
@@ -253,6 +268,10 @@ defmodule BeamFileTest do
       assert {:ok, _info} = BeamFile.debug_info(binary)
     end
 
+    test "return debug info for tuple" do
+      assert {:ok, _info} = BeamFile.debug_info({:module, Math, BeamFile.read!(Math), []})
+    end
+
     test "returns an error for an invalid path" do
       assert BeamFile.debug_info('invalid/path') ==
                {:error, {:file_error, 'invalid/path.beam', :enoent}}
@@ -307,6 +326,10 @@ defmodule BeamFileTest do
       assert BeamFile.docs(binary) == @math_docs
     end
 
+    test "return docs info for tuple" do
+      assert BeamFile.docs({:module, Math, BeamFile.read!(Math), []}) == @math_docs
+    end
+
     test "returns an error for invalid binary" do
       assert BeamFile.docs(<<0, 0, 55>>) == {:error, {:not_a_beam_file, <<0, 0, 55>>}}
     end
@@ -330,6 +353,20 @@ defmodule BeamFileTest do
   describe "elixir_code/2" do
     test "returns elixir code for the Math module" do
       assert {:ok, code} = BeamFile.elixir_code(Math)
+
+      assert code <> "\n" ==
+               File.read!("test/fixtures/#{TestSupport.system_version()}/math_without_docs.exs")
+    end
+
+    test "returns elixir code for the Math binary" do
+      assert {:ok, code} = BeamFile.elixir_code(BeamFile.read!(Math))
+
+      assert code <> "\n" ==
+               File.read!("test/fixtures/#{TestSupport.system_version()}/math_without_docs.exs")
+    end
+
+    test "returns elixir code for the Math tuple" do
+      assert {:ok, code} = BeamFile.elixir_code({:module, Math, BeamFile.read!(Math), []})
 
       assert code <> "\n" ==
                File.read!("test/fixtures/#{TestSupport.system_version()}/math_without_docs.exs")
@@ -420,6 +457,20 @@ defmodule BeamFileTest do
                File.read!("test/fixtures/#{TestSupport.system_version()}/math.exs")
     end
 
+    test "returns elixir code for the Math binary" do
+      assert code = BeamFile.elixir_code!(BeamFile.read!(Math))
+
+      assert code <> "\n" ==
+               File.read!("test/fixtures/#{TestSupport.system_version()}/math_without_docs.exs")
+    end
+
+    test "returns elixir code for the Math tuple" do
+      assert code = BeamFile.elixir_code!({:module, Math, BeamFile.read!(Math), []})
+
+      assert code <> "\n" ==
+               File.read!("test/fixtures/#{TestSupport.system_version()}/math_without_docs.exs")
+    end
+
     test "raises an error for an unknown module" do
       message = "Elixir code for Unknown not available, reason: :non_existing"
 
@@ -435,6 +486,11 @@ defmodule BeamFileTest do
     describe "erl_code/1" do
       test "returns Erlang code for a module" do
         assert {:ok, code} = BeamFile.erl_code(Math)
+        assert code <> "\n" == @math_erl_code
+      end
+
+      test "returns Erlang code for a tuple" do
+        assert {:ok, code} = BeamFile.erl_code({:module, Math, BeamFile.read!(Math), []})
         assert code <> "\n" == @math_erl_code
       end
 
@@ -516,6 +572,11 @@ defmodule BeamFileTest do
     test "returns info for binary" do
       math = File.read!(@math_beam_path)
       assert {:ok, info} = BeamFile.info(math)
+      assert info[:module] == Math
+    end
+
+    test "returns info for tuple" do
+      assert {:ok, info} = BeamFile.info({:module, Math, BeamFile.read!(Math), []})
       assert info[:module] == Math
     end
 

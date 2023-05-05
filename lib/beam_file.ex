@@ -29,7 +29,7 @@ defmodule BeamFile do
 
   @type path :: charlist()
 
-  @type input :: path() | module() | binary()
+  @type input :: path() | module() | binary() | {:module, atom(), binary(), any()}
 
   @type reason :: any()
 
@@ -299,6 +299,8 @@ defmodule BeamFile do
   @spec all_chunks(input(), type :: :names | :ids) :: {:ok, map()} | {:error, any()}
   def all_chunks(input, type \\ :names)
 
+  def all_chunks({:module, _name, bin, _context}, type), do: all_chunks(bin, type)
+
   def all_chunks(input, type) when is_atom(input) and type in [:ids, :names] do
     with {:ok, path} <- path(input) do
       all_chunks(path, type)
@@ -346,6 +348,8 @@ defmodule BeamFile do
       ]
   """
   @spec byte_code(input()) :: {:ok, term()} | {:error, any()}
+  def byte_code({:module, _name, bin, _context}), do: byte_code(bin)
+
   def byte_code(input) when is_atom(input) do
     with {:ok, path} <- path(input), do: byte_code(path)
   end
@@ -389,6 +393,8 @@ defmodule BeamFile do
       true
   """
   @spec chunk(input(), chunk_ref()) :: {:ok, term()} | {:error, any()}
+  def chunk({:module, _name, bin, _context}, chunk), do: chunk(bin, chunk)
+
   def chunk(input, chunk)
       when is_atom(input) and (chunk in @chunk_ids or chunk in @chunk_names) do
     with {:ok, path} <- path(input), do: chunk(path, chunk)
@@ -439,6 +445,8 @@ defmodule BeamFile do
 
   """
   @spec debug_info(input()) :: {:ok, term()} | {:error, any}
+  def debug_info({:module, _name, bin, _context}), do: debug_info(bin)
+
   def debug_info(input) when is_atom(input) do
     with {:ok, path} <- path(input) do
       debug_info(path)
@@ -483,6 +491,8 @@ defmodule BeamFile do
       {:ok, {:none, %{}, [{{:function, :hello, 0}, 2, ["hello()"], :none, %{}}]}}
   """
   @spec docs(input()) :: {:ok, term()} | {:error, any}
+  def docs({:module, _name, bin, _context}), do: docs(bin)
+
   def docs(input) when is_atom(input) do
     with {:ok, path} <- path(input) do
       docs(path)
@@ -538,6 +548,8 @@ defmodule BeamFile do
   @spec elixir_code(input(), opts :: keyword()) :: {:ok, String.t()} | {:error, any}
   def elixir_code(input, opts \\ [])
 
+  def elixir_code({:module, _name, bin, _context}, opts), do: elixir_code(bin, opts)
+
   def elixir_code(input, opts) when is_atom(input) do
     with {:ok, path} <- path(input) do
       elixir_code(path, opts)
@@ -566,7 +578,11 @@ defmodule BeamFile do
   Same as `elixir_code/1` but raises `BeamFile.Error`
   """
   @spec elixir_code!(input(), opts :: keyword()) :: String.t()
-  def elixir_code!(input, opts \\ []) do
+  def elixir_code!(input, opts \\ [])
+
+  def elixir_code!({:module, _name, bin, _context}, opts), do: elixir_code!(bin, opts)
+
+  def elixir_code!(input, opts) do
     case elixir_code(input, opts) do
       {:ok, code} ->
         code
@@ -582,6 +598,7 @@ defmodule BeamFile do
   @doc """
   Returns the extended Elixir AST.
   """
+  @spec elixir_quoted(input()) :: {:ok, Macro.t()} | {:error, any()}
   def elixir_quoted(input) do
     with {:ok, debug_info} <- debug_info(input) do
       {:ok, DebugInfo.ast(debug_info)}
@@ -591,6 +608,7 @@ defmodule BeamFile do
   @doc """
   Same as `elixir_quoted/1` but raises `BeamFile.Error`
   """
+  @spec elixir_quoted!(input()) :: Macro.t()
   def elixir_quoted!(input) do
     case elixir_quoted(input) do
       {:ok, ast} ->
@@ -614,6 +632,8 @@ defmodule BeamFile do
       true
   """
   @spec erl_code(input()) :: {:ok, String.t()} | {:error, any()}
+  def erl_code({:module, _name, bin, _context}), do: erl_code(bin)
+
   def erl_code(input) when is_atom(input) do
     with {:ok, path} <- path(input) do
       erl_code(path)
@@ -669,7 +689,7 @@ defmodule BeamFile do
   @doc """
   Same as `read/1` but raises `BeamFile.Error`
   """
-  @spec read!(input()) :: binary()
+  @spec read!(Path.t() | path() | module()) :: binary()
   def read!(input) do
     case read(input) do
       {:ok, binary} ->
@@ -736,6 +756,8 @@ defmodule BeamFile do
       ]
   """
   @spec info(input()) :: {:ok, info()} | {:error, reason()}
+  def info({:module, _name, bin, _context}), do: info(bin)
+
   def info(input) when is_atom(input) do
     with {:ok, path} <- path(input), do: info(path)
   end

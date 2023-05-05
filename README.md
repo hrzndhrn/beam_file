@@ -224,6 +224,55 @@ iex> IO.puts(code)
 
 ## Example (iex)
 
+Disasamble some Elixir code:
+```elixir
+iex(1)> defmodule Foo do
+...(1)>   def bar(x), do: if x == 0, do: false, else: true
+...(1)> end |> BeamFile.elixir_code!() |> IO.puts()
+defmodule Elixir.Foo do
+  def bar(x) do
+    case :erlang.==(x, 0) do
+      false -> true
+      true -> false
+    end
+  end
+end
+:ok
+```
+
+Take a look to the AST:
+```elixir
+iex(1)> defmodule Foo do
+...(1)>   def bar(x), do: if x == 0, do: false, else: true
+...(1)> end |> BeamFile.elixir_quoted!()
+{:defmodule, [context: Elixir, import: Kernel],
+ [
+   {:__aliases__, [alias: false], [Foo]},
+   [
+     do: {:__block__, [],
+      [
+        {:def, [line: 4],
+         [
+           {:bar, [], [{:x, [version: 0, line: 4], nil}]},
+           [
+             do: {:case, [line: 4, optimize_boolean: true],
+              [
+                {{:., [line: 4], [:erlang, :==]}, [line: 4],
+                 [{:x, [version: 0, line: 4], nil}, 0]},
+                [
+                  do: [
+                    {:->, [generated: true, line: 4], [[false], true]},
+                    {:->, [generated: true, line: 4], [[true], false]}
+                  ]
+                ]
+              ]}
+           ]
+         ]}
+      ]}
+   ]
+ ]}
+```
+
 Use of `BeamFile.erl_code/1` with `binary`:
 ```elixir
 iex(1)> {:module, Foo, binary, _} = defmodule Foo do
