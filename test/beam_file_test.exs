@@ -594,31 +594,31 @@ defmodule BeamFileTest do
     end
   end
 
-  describe "elixir_ast!/2" do
+  describe "elixir_quoted!/2" do
     test "returns the elixir ast for Math" do
-      assert ast = BeamFile.elixir_ast!(Math)
+      assert ast = BeamFile.elixir_quoted!(Math)
 
       assert Macro.to_string(ast) <> "\n" ==
                File.read!("test/fixtures/#{TestSupport.system_version()}/math_without_docs.exs")
     end
 
     test "returns the elixir ast for MultiWhen" do
-      assert BeamFile.elixir_ast!(MultiWhen)
+      assert BeamFile.elixir_quoted!(MultiWhen)
     end
 
     test "returns the elixir ast for Op" do
-      assert BeamFile.elixir_ast!(Op)
+      assert BeamFile.elixir_quoted!(Op)
     end
 
     test "returns the elixir ast for PlusPlus" do
-      assert BeamFile.elixir_ast!(PlusPlus)
+      assert BeamFile.elixir_quoted!(PlusPlus)
     end
 
     test "raises an error for an unknown module" do
       message = "Elixir AST for Unknown not available, reason: :non_existing"
 
       assert_raise BeamFile.Error, message, fn ->
-        BeamFile.elixir_ast!(Unknown)
+        BeamFile.elixir_quoted!(Unknown)
       end
     end
   end

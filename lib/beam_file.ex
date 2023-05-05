@@ -12,7 +12,7 @@ defmodule BeamFile do
   - `BeamFile.byte_code/1`
   - `BeamFile.erl_code/1`
   - `BeamFile.elixir_code/2`
-  - `BeamFile.elixir_ast/1`
+  - `BeamFile.elixir_quoted/1`
 
   To use the functions above with a module name the module must be compiled
   and loaded. The functions can also be used with the binary of a module.
@@ -582,17 +582,17 @@ defmodule BeamFile do
   @doc """
   Returns the extended Elixir AST.
   """
-  def elixir_ast(input) do
+  def elixir_quoted(input) do
     with {:ok, debug_info} <- debug_info(input) do
       {:ok, DebugInfo.ast(debug_info)}
     end
   end
 
   @doc """
-  Same as `elixir_ast/1` but raises `BeamFile.Error`
+  Same as `elixir_quoted/1` but raises `BeamFile.Error`
   """
-  def elixir_ast!(input) do
-    case elixir_ast(input) do
+  def elixir_quoted!(input) do
+    case elixir_quoted(input) do
       {:ok, ast} ->
         ast
 
