@@ -92,9 +92,11 @@ defmodule BeamFile.DebugInfo do
     defs_to_code(defs, defdocs, [defdoc, code | acc])
   end
 
-  defp moduledoc({:none, _context, _defdocs}), do: nil
+  defp moduledoc({moduledoc, _context, _defdocs}) when is_map(moduledoc) do
+    Map.get(moduledoc, @default_lang)
+  end
 
-  defp moduledoc({moduledoc, _context, _defdocs}), do: Map.get(moduledoc, @default_lang)
+  defp moduledoc({_moduledoc, _context, _defdocs}), do: nil
 
   defp doc(_type, nil), do: ""
 
@@ -138,7 +140,7 @@ defmodule BeamFile.DebugInfo do
     docs
     |> Enum.reduce([], fn
       {{kind, name, arity}, line, _code, docs, _opts}, acc
-      when kind in [:function, :macro] and docs != :none ->
+      when kind in [:function, :macro] and is_map(docs) ->
         doc = Map.get(docs, @default_lang)
         [{name, arity, doc, line} | acc]
 

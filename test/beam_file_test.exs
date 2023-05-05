@@ -12,6 +12,14 @@ defmodule BeamFileTest do
   @math_debug_info TestSupport.fixture_version("math_debug_info.exs")
   @math_docs TestSupport.fixture_version("math_docs.exs")
 
+  @elixir_modules :elixir
+                  |> Application.spec(:modules)
+                  |> Enum.concat(Application.spec(:logger, :modules))
+                  |> Enum.reject(fn
+                    Kernel.SpecialForms -> true
+                    module -> module |> to_string |> String.starts_with?("elixir")
+                  end)
+
   describe "abstract_code/1" do
     test "returns abstract code for module" do
       assert BeamFile.abstract_code(Math) == @math_abstract_code
@@ -395,47 +403,13 @@ defmodule BeamFileTest do
       assert BeamFile.elixir_code(<<0, 0, 7>>) == {:error, {:not_a_beam_file, <<0, 0, 7>>}}
     end
 
-    @skip [
-      :elixir,
-      :elixir_aliases,
-      :elixir_bitstring,
-      :elixir_bootstrap,
-      :elixir_clauses,
-      :elixir_code_server,
-      :elixir_compiler,
-      :elixir_config,
-      :elixir_def,
-      :elixir_dispatch,
-      :elixir_env,
-      :elixir_erl,
-      :elixir_erl_clauses,
-      :elixir_erl_compiler,
-      :elixir_erl_for,
-      :elixir_erl_pass,
-      :elixir_erl_try,
-      :elixir_erl_var,
-      :elixir_errors,
-      :elixir_expand,
-      :elixir_fn,
-      :elixir_import,
-      :elixir_interpolation,
-      :elixir_lexical,
-      :elixir_locals,
-      :elixir_map,
-      :elixir_module,
-      :elixir_overridable,
-      :elixir_parser,
-      :elixir_quote,
-      :elixir_rewrite,
-      :elixir_sup,
-      :elixir_tokenizer,
-      :elixir_utils,
-      Kernel.SpecialForms
-    ]
-    for module <- Application.spec(:elixir, :modules) ++ Application.spec(:logger, :modules),
-        module not in @skip do
+    for module <- @elixir_modules do
       test "returns elixir code for #{inspect(module)}" do
         assert {:ok, _code} = BeamFile.elixir_code(unquote(module))
+      end
+
+      test "returns elixir code for #{inspect(module)} with docs" do
+        assert {:ok, _code} = BeamFile.elixir_code(unquote(module), docs: true)
       end
     end
   end
