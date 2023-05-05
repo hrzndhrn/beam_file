@@ -4,8 +4,8 @@ defmodule BeamFile.MixProject do
   def project do
     [
       app: :beam_file,
-      version: "0.4.2",
-      elixir: "~> 1.11",
+      version: "0.5.0",
+      elixir: "~> 1.13",
       description: "An interface to the BEAM file format and a decompiler",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -13,7 +13,8 @@ defmodule BeamFile.MixProject do
       preferred_cli_env: preferred_cli_env(),
       dialyzer: dialyzer(),
       package: package(),
-      docs: docs()
+      docs: docs(),
+      aliases: aliases()
     ]
   end
 
@@ -32,9 +33,9 @@ defmodule BeamFile.MixProject do
 
   defp preferred_cli_env do
     [
+      carp: :test,
       coveralls: :test,
       "coveralls.detail": :test,
-      "coveralls.post": :test,
       "coveralls.html": :test,
       "coveralls.github": :test
     ]
@@ -45,6 +46,12 @@ defmodule BeamFile.MixProject do
       plt_add_apps: [:mix, :syntax_tools],
       plt_file: {:no_warn, "test/support/plts/dialyzer.plt"},
       flags: [:unmatched_returns]
+    ]
+  end
+
+  defp aliases do
+    [
+      carp: "test --seed 0 --max-failures 1"
     ]
   end
 

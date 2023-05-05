@@ -3,7 +3,7 @@ defmodule BeamFileTest do
 
   alias BeamFile.Error
 
-  if System.version() =~ "1.13" and :erlang.system_info(:otp_release) == '25' do
+  if TestSupport.version?("~> 1.14") and TestSupport.otp_release?(25) do
     doctest(BeamFile)
   end
 
@@ -11,7 +11,14 @@ defmodule BeamFileTest do
   @math_abstract_code TestSupport.fixture_version("math_abstract_code.exs")
   @math_debug_info TestSupport.fixture_version("math_debug_info.exs")
   @math_docs TestSupport.fixture_version("math_docs.exs")
-  @math_erl_code TestSupport.fixture_version("math_erl_code.exs")
+
+  @elixir_modules :elixir
+                  |> Application.spec(:modules)
+                  |> Enum.concat(Application.spec(:logger, :modules))
+                  |> Enum.reject(fn
+                    Kernel.SpecialForms -> true
+                    module -> module |> to_string |> String.starts_with?("elixir")
+                  end)
 
   describe "abstract_code/1" do
     test "returns abstract code for module" do
@@ -65,6 +72,10 @@ defmodule BeamFileTest do
       assert {:ok, _chunks} = BeamFile.all_chunks(Math)
     end
 
+    test "returns all chunks for a tuple with default type" do
+      assert {:ok, _chunks} = BeamFile.all_chunks({:module, Math, BeamFile.read!(Math), []})
+    end
+
     test "returns all chunks for a module with type ids" do
       assert {:ok, _chunks} = BeamFile.all_chunks(Math, :ids)
     end
@@ -108,6 +119,7 @@ defmodule BeamFileTest do
       assert elem(byte_code, 1) == Math
 
       assert elem(byte_code, 2) |> Enum.map(fn {key, _, _} -> key end) == [
+               :"MACRO-biggest",
                :__info__,
                :add,
                :divide,
@@ -126,6 +138,12 @@ defmodule BeamFileTest do
       binary = File.read!(@math_beam_path)
 
       assert {:ok, byte_code} = BeamFile.byte_code(binary)
+      assert elem(byte_code, 0) == :beam_file
+      assert elem(byte_code, 1) == Math
+    end
+
+    test "returns the byte code for tuple" do
+      assert {:ok, byte_code} = BeamFile.byte_code({:module, Math, BeamFile.read!(Math), []})
       assert elem(byte_code, 0) == :beam_file
       assert elem(byte_code, 1) == Math
     end
@@ -169,8 +187,13 @@ defmodule BeamFileTest do
   end
 
   describe "chunk/2" do
-    test "return chunk Dbgi for  a module" do
+    test "return chunk Dbgi for a module" do
       assert {:ok, dbgi} = BeamFile.chunk(Math, 'Dbgi')
+      assert is_binary(dbgi) == true
+    end
+
+    test "return chunk Dbgi for a tuple" do
+      assert {:ok, dbgi} = BeamFile.chunk({:module, Math, BeamFile.read!(Math), []}, 'Dbgi')
       assert is_binary(dbgi) == true
     end
 
@@ -245,6 +268,10 @@ defmodule BeamFileTest do
       assert {:ok, _info} = BeamFile.debug_info(binary)
     end
 
+    test "return debug info for tuple" do
+      assert {:ok, _info} = BeamFile.debug_info({:module, Math, BeamFile.read!(Math), []})
+    end
+
     test "returns an error for an invalid path" do
       assert BeamFile.debug_info('invalid/path') ==
                {:error, {:file_error, 'invalid/path.beam', :enoent}}
@@ -299,6 +326,10 @@ defmodule BeamFileTest do
       assert BeamFile.docs(binary) == @math_docs
     end
 
+    test "return docs info for tuple" do
+      assert BeamFile.docs({:module, Math, BeamFile.read!(Math), []}) == @math_docs
+    end
+
     test "returns an error for invalid binary" do
       assert BeamFile.docs(<<0, 0, 55>>) == {:error, {:not_a_beam_file, <<0, 0, 55>>}}
     end
@@ -322,19 +353,50 @@ defmodule BeamFileTest do
   describe "elixir_code/2" do
     test "returns elixir code for the Math module" do
       assert {:ok, code} = BeamFile.elixir_code(Math)
-      assert code <> "\n" == File.read!("test/fixtures/#{TestSupport.system_version()}/math.exs")
-    end
-
-    test "returns elixir code for the Math module without docs" do
-      assert {:ok, code} = BeamFile.elixir_code(Math, docs: false)
 
       assert code <> "\n" ==
                File.read!("test/fixtures/#{TestSupport.system_version()}/math_without_docs.exs")
     end
 
+    test "returns elixir code for the Math binary" do
+      assert {:ok, code} = BeamFile.elixir_code(BeamFile.read!(Math))
+
+      assert code <> "\n" ==
+               File.read!("test/fixtures/#{TestSupport.system_version()}/math_without_docs.exs")
+    end
+
+    test "returns elixir code for the Math tuple" do
+      assert {:ok, code} = BeamFile.elixir_code({:module, Math, BeamFile.read!(Math), []})
+
+      assert code <> "\n" ==
+               File.read!("test/fixtures/#{TestSupport.system_version()}/math_without_docs.exs")
+    end
+
+    test "returns elixir code for the Math module with docs" do
+      assert {:ok, code} = BeamFile.elixir_code(Math, docs: true)
+
+      assert code <> "\n" ==
+               File.read!("test/fixtures/#{TestSupport.system_version()}/math.exs")
+    end
+
     test "returns elixir code for the Default module" do
       assert {:ok, code} = BeamFile.elixir_code(Default)
       assert code <> "\n" == File.read!("test/fixtures/default.exs")
+    end
+
+    test "returns elixir code for the Default module with docs" do
+      assert {:ok, code} = BeamFile.elixir_code(Default, docs: true)
+      assert code <> "\n" == File.read!("test/fixtures/default.exs")
+    end
+
+    test "returns elixir code for the Bodies module" do
+      assert {:ok, code} = BeamFile.elixir_code(Bodies)
+      assert code <> "\n" == File.read!("test/fixtures/bodies.exs")
+    end
+
+    test "returns elixir code for the Bodies module with docs" do
+      assert {:ok, code} = BeamFile.elixir_code(Bodies, docs: true)
+      assert code <> "\n" == File.read!("test/fixtures/bodies.exs")
     end
 
     test "returns elixir code for the Delegate module" do
@@ -352,30 +414,61 @@ defmodule BeamFileTest do
       end
     end
 
-    test "returns elixir code with multiple whens" do
-      assert {:ok, code} = BeamFile.elixir_code(MultiWhen)
-      assert code <> "\n" == File.read!("test/fixtures/multi_when.exs")
+    if TestSupport.version?("~> 1.14") do
+      test "returns elixir code with multiple whens" do
+        assert {:ok, code} = BeamFile.elixir_code(MultiWhen)
+        assert code <> "\n" == File.read!("test/fixtures/multi_when.exs")
+      end
+    end
+
+    test "returns elixir code with op def" do
+      assert {:ok, code} = BeamFile.elixir_code(Op)
+      assert code <> "\n" == File.read!("test/fixtures/op.ex")
+    end
+
+    test "returns elixir code with ++" do
+      assert {:ok, code} = BeamFile.elixir_code(PlusPlus)
+      assert code <> "\n" == File.read!("test/fixtures/plus_plus.exs")
+    end
+
+    test "returns elixir code for DocDoc with docs" do
+      assert {:ok, code} = BeamFile.elixir_code(DocDoc, docs: true)
+      assert code <> "\n" == File.read!("test/fixtures/doc_doc.exs")
     end
 
     test "returns an error for invalid binary" do
       assert BeamFile.elixir_code(<<0, 0, 7>>) == {:error, {:not_a_beam_file, <<0, 0, 7>>}}
     end
 
-    :elixir
-    |> Application.spec(:modules)
-    |> Enum.each(fn module ->
-      unless module |> to_string |> String.starts_with?("elixir") do
-        test "returns elixir code for #{inspect(module)}" do
-          assert {:ok, _code} = BeamFile.elixir_code(unquote(module))
-        end
+    for module <- @elixir_modules do
+      test "returns elixir code for #{inspect(module)}" do
+        assert {:ok, _code} = BeamFile.elixir_code(unquote(module))
       end
-    end)
+
+      test "returns elixir code for #{inspect(module)} with docs" do
+        assert {:ok, _code} = BeamFile.elixir_code(unquote(module), docs: true)
+      end
+    end
   end
 
   describe "elixir_code!/2" do
     test "returns elixir code for the Math module" do
-      assert BeamFile.elixir_code!(Math) <> "\n" ==
+      assert BeamFile.elixir_code!(Math, docs: true) <> "\n" ==
                File.read!("test/fixtures/#{TestSupport.system_version()}/math.exs")
+    end
+
+    test "returns elixir code for the Math binary" do
+      assert code = BeamFile.elixir_code!(BeamFile.read!(Math))
+
+      assert code <> "\n" ==
+               File.read!("test/fixtures/#{TestSupport.system_version()}/math_without_docs.exs")
+    end
+
+    test "returns elixir code for the Math tuple" do
+      assert code = BeamFile.elixir_code!({:module, Math, BeamFile.read!(Math), []})
+
+      assert code <> "\n" ==
+               File.read!("test/fixtures/#{TestSupport.system_version()}/math_without_docs.exs")
     end
 
     test "raises an error for an unknown module" do
@@ -387,10 +480,18 @@ defmodule BeamFileTest do
     end
   end
 
-  if :erlang.system_info(:otp_release) == '25' do
+  if TestSupport.otp_release?(25) do
+    @math_erl_code TestSupport.fixture_version("math.erl")
+
     describe "erl_code/1" do
       test "returns Erlang code for a module" do
-        assert BeamFile.erl_code(Math) == @math_erl_code
+        assert {:ok, code} = BeamFile.erl_code(Math)
+        assert code <> "\n" == @math_erl_code
+      end
+
+      test "returns Erlang code for a tuple" do
+        assert {:ok, code} = BeamFile.erl_code({:module, Math, BeamFile.read!(Math), []})
+        assert code <> "\n" == @math_erl_code
       end
 
       test "returns an error for invalid binary" do
@@ -400,8 +501,7 @@ defmodule BeamFileTest do
 
     describe "erl_code!/1" do
       test "returns Erlang code for a module" do
-        {:ok, code} = @math_erl_code
-        assert BeamFile.erl_code!(Math) == code
+        assert BeamFile.erl_code!(Math) <> "\n" == @math_erl_code
       end
 
       test "raises an error for invalid binary" do
@@ -472,6 +572,11 @@ defmodule BeamFileTest do
     test "returns info for binary" do
       math = File.read!(@math_beam_path)
       assert {:ok, info} = BeamFile.info(math)
+      assert info[:module] == Math
+    end
+
+    test "returns info for tuple" do
+      assert {:ok, info} = BeamFile.info({:module, Math, BeamFile.read!(Math), []})
       assert info[:module] == Math
     end
 
@@ -546,6 +651,35 @@ defmodule BeamFileTest do
 
       assert_raise Error, message, fn ->
         BeamFile.which!(Unknown.Module)
+      end
+    end
+  end
+
+  describe "elixir_quoted!/2" do
+    test "returns the elixir ast for Math" do
+      assert ast = BeamFile.elixir_quoted!(Math)
+
+      assert Macro.to_string(ast) <> "\n" ==
+               File.read!("test/fixtures/#{TestSupport.system_version()}/math_without_docs.exs")
+    end
+
+    test "returns the elixir ast for MultiWhen" do
+      assert BeamFile.elixir_quoted!(MultiWhen)
+    end
+
+    test "returns the elixir ast for Op" do
+      assert BeamFile.elixir_quoted!(Op)
+    end
+
+    test "returns the elixir ast for PlusPlus" do
+      assert BeamFile.elixir_quoted!(PlusPlus)
+    end
+
+    test "raises an error for an unknown module" do
+      message = "Elixir AST for Unknown not available, reason: :non_existing"
+
+      assert_raise BeamFile.Error, message, fn ->
+        BeamFile.elixir_quoted!(Unknown)
       end
     end
   end

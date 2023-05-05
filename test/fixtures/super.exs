@@ -4,7 +4,7 @@ defmodule Elixir.DefaultMod do
      [
        {:def, [context: DefaultMod, imports: [{1, Kernel}, {2, Kernel}]],
         [
-          {:test, [context: DefaultMod], [{:x, [], DefaultMod}, {:y, [], DefaultMod}]},
+          {:bar, [context: DefaultMod], [{:x, [], DefaultMod}, {:y, [], DefaultMod}]},
           [
             do:
               {:+, [context: DefaultMod, imports: [{1, Kernel}, {2, Kernel}]],
@@ -13,13 +13,13 @@ defmodule Elixir.DefaultMod do
         ]},
        {:def, [context: DefaultMod, imports: [{1, Kernel}, {2, Kernel}]],
         [{:foo, [context: DefaultMod], [{:x, [], DefaultMod}]}, [do: {:x, [], DefaultMod}]]},
-       {:defoverridable, [context: DefaultMod, imports: [{1, Kernel}]], [[test: 2, foo: 1]]}
+       {:defoverridable, [context: DefaultMod, imports: [{1, Kernel}]], [[bar: 2, foo: 1]]}
      ]}
   end
 end
 
 defmodule Elixir.InheritMod do
-  defp unquote(:"test (overridable 1)")(x, y) do
+  defp unquote(:"bar (overridable 1)")(x, y) do
     :erlang.+(x, y)
   end
 
@@ -27,7 +27,7 @@ defmodule Elixir.InheritMod do
     x
   end
 
-  def test(x, y) do
-    :erlang.+(:erlang.*(x, y), unquote(:"test (overridable 1)")(x, y))
+  def bar(x, y) do
+    :erlang.+(:erlang.*(x, y), unquote(:"bar (overridable 1)")(x, y))
   end
 end
