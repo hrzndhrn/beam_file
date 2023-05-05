@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.0 - 2023/05/05
+
++ Require Elixir 1.13
++ Add `BeamFile.elixir_quoted/2`
++ `BeamFile.elixir_code/2` uses now `docs: false` as default opts.
++ Refactor code to fix a bunch of errors
+
 ## 0.4.2 - 2023/04/03
 
 + Expand `super/1`
