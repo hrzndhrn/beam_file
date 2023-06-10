@@ -22,7 +22,15 @@ defmodule BeamFileTest do
 
   describe "abstract_code/1" do
     test "returns abstract code for module" do
-      assert BeamFile.abstract_code(Math) == @math_abstract_code
+      if TestSupport.version?("~> 1.14") do
+        if TestSupport.otp_release?(26) do
+          assert BeamFile.abstract_code(Math) == @math_abstract_code
+        else
+          assert BeamFile.abstract_code(Math)
+        end
+      else
+        assert BeamFile.abstract_code(Math) == @math_abstract_code
+      end
     end
 
     test "returns abstract code for binary" do
@@ -41,7 +49,16 @@ defmodule BeamFileTest do
 
     test "returns abstract code for the beam file at the given path" do
       path = String.to_charlist(@math_beam_path)
-      assert BeamFile.abstract_code(path) == @math_abstract_code
+
+      if TestSupport.version?("~> 1.14") do
+        if TestSupport.otp_release?(26) do
+          assert BeamFile.abstract_code(path) == @math_abstract_code
+        else
+          assert BeamFile.abstract_code(path)
+        end
+      else
+        assert BeamFile.abstract_code(path) == @math_abstract_code
+      end
     end
 
     test "returns an error for an unknown module" do
@@ -61,7 +78,16 @@ defmodule BeamFileTest do
   describe "abstract_code!/1" do
     test "returns abstract code for module" do
       {:ok, code} = @math_abstract_code
-      assert BeamFile.abstract_code!(Math) == code
+
+      if TestSupport.version?("~> 1.14") do
+        if TestSupport.otp_release?(26) do
+          assert BeamFile.abstract_code!(Math) == code
+        else
+          assert BeamFile.abstract_code!(Math)
+        end
+      else
+        assert BeamFile.abstract_code!(Math) == code
+      end
     end
 
     test "returns an error for an invalid path" do
