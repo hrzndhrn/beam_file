@@ -527,7 +527,7 @@ defmodule BeamFileTest do
     assert info[:file] =~ "_build/test/lib/beam_file/ebin/Elixir.Math.beam"
     assert info[:module] == Math
 
-    if :erlang.system_info(:otp_release) == '25' do
+    if :erlang.system_info(:otp_release) in ['25', '26'] do
       assert [
                {'AtU8', _, _},
                {'Code', _, _},

@@ -5,7 +5,7 @@ defmodule TestSupport do
     {:ok, version} = Version.parse(System.version())
 
     cond do
-      Version.match?(version, "~> 1.14") -> "1.14.3"
+      Version.match?(version, "~> 1.14") -> "1.14.5"
       Version.match?(version, "~> 1.13") -> "1.13.4"
       Version.match?(version, "~> 1.12") -> "1.12.3"
       Version.match?(version, "~> 1.11") -> "1.11.4"
