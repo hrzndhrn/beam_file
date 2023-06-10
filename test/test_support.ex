@@ -27,7 +27,11 @@ defmodule TestSupport do
     Version.match?(version, require)
   end
 
-  def otp_release?(release) do
+  def otp_release?(release) when is_integer(release) do
     :erlang.list_to_integer(:erlang.system_info(:otp_release)) == release
+  end
+
+  def otp_release?(releases) when is_list(releases) do
+    Enum.any?(releases, &otp_release?/1)
   end
 end
