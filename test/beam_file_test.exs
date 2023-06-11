@@ -471,6 +471,11 @@ defmodule BeamFileTest do
       assert code <> "\n" == File.read!("test/fixtures/doc_doc.exs")
     end
 
+    test "returns elixir code for the Comps module" do
+      assert {:ok, code} = BeamFile.elixir_code(Comps)
+      assert code <> "\n" == File.read!("test/fixtures/comps.exs")
+    end
+
     test "returns an error for invalid binary" do
       assert BeamFile.elixir_code(<<0, 0, 7>>) == {:error, {:not_a_beam_file, <<0, 0, 7>>}}
     end
