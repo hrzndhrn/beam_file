@@ -92,6 +92,14 @@ defmodule BeamFile.Normalizer do
     {{:., meta1, [:erlang, :binary_to_atom]}, meta2, [arg, {:__block__, [], [:utf8]}]}
   end
 
+  def normalize({:for, meta, args}) when is_list(args) do
+    {args, [last]} = Enum.split(args, -1)
+    # put the :do to the end of the keyword list
+    block = Keyword.fetch!(last, :do)
+    last = last |> Keyword.delete(:do) |> Enum.concat([{:do, block}])
+    {:for, meta, args ++ [last]}
+  end
+
   def normalize({expr, meta, args}) do
     if unquote?(expr) do
       {{:unquote, [], [expr]}, meta, normalize(args)}
