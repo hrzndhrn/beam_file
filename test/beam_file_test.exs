@@ -520,7 +520,8 @@ defmodule BeamFileTest do
     end
   end
 
-  if TestSupport.otp_release?(25) do
+  if !TestSupport.version?("~> 1.14") ||
+       (TestSupport.version?("~> 1.14") && TestSupport.otp_release?(:latest)) do
     @math_erl_code TestSupport.fixture_version("math.erl")
 
     describe "erl_code/1" do

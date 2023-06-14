@@ -632,7 +632,9 @@ defmodule BeamFile do
       true
   """
   @spec erl_code(input()) :: {:ok, String.t()} | {:error, any()}
-  def erl_code({:module, _name, bin, _context}), do: erl_code(bin)
+  def erl_code({:module, _name, bin, _context}) do
+    erl_code(bin)
+  end
 
   def erl_code(input) when is_atom(input) do
     with {:ok, path} <- path(input) do
