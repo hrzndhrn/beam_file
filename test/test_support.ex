@@ -12,10 +12,10 @@ defmodule TestSupport do
     end
   end
 
-  def fixture_version(file) do
+  def fixture_version(file, opts \\ []) do
     path = "test/fixtures/#{system_version()}/#{file}"
 
-    if Path.extname(file) == ".exs" do
+    if Keyword.get(opts, :eval, false) do
       path |> Code.eval_file() |> elem(0)
     else
       File.read!(path)
