@@ -181,7 +181,7 @@ defmodule BeamFile do
                         :bin_element,
                         0,
                         {:string, 0,
-                         [240, 105, 247, 119, 22, 50, 219, 207, 90, 95, 127, 92, 159, 46, 131, 169]},
+                          [166, 117, 1, 22, 146, 56, 30, 199, 203, 141, 158, 223, 3, 11, 225, 190]},
                         :default,
                         :default
                       }
@@ -632,7 +632,9 @@ defmodule BeamFile do
       true
   """
   @spec erl_code(input()) :: {:ok, String.t()} | {:error, any()}
-  def erl_code({:module, _name, bin, _context}), do: erl_code(bin)
+  def erl_code({:module, _name, bin, _context}) do
+    erl_code(bin)
+  end
 
   def erl_code(input) when is_atom(input) do
     with {:ok, path} <- path(input) do

@@ -3,14 +3,14 @@ defmodule BeamFileTest do
 
   alias BeamFile.Error
 
-  if TestSupport.version?("~> 1.14") and TestSupport.otp_release?(25) do
+  if TestSupport.version?("~> 1.14") and TestSupport.otp_release?(26) do
     doctest(BeamFile)
   end
 
   @math_beam_path "_build/test/lib/beam_file/ebin/Elixir.Math.beam"
-  @math_abstract_code TestSupport.fixture_version("math_abstract_code.exs")
-  @math_debug_info TestSupport.fixture_version("math_debug_info.exs")
-  @math_docs TestSupport.fixture_version("math_docs.exs")
+  @math_abstract_code TestSupport.fixture_version("math_abstract_code.exs", eval: true)
+  @math_debug_info TestSupport.fixture_version("math_debug_info.exs", eval: true)
+  @math_docs TestSupport.fixture_version("math_docs.exs", eval: true)
 
   @elixir_modules :elixir
                   |> Application.spec(:modules)
@@ -471,6 +471,11 @@ defmodule BeamFileTest do
       assert code <> "\n" == File.read!("test/fixtures/doc_doc.exs")
     end
 
+    test "returns elixir code for the Comps module" do
+      assert {:ok, code} = BeamFile.elixir_code(Comps)
+      assert code <> "\n" == TestSupport.fixture_version("comps.exs")
+    end
+
     test "returns an error for invalid binary" do
       assert BeamFile.elixir_code(<<0, 0, 7>>) == {:error, {:not_a_beam_file, <<0, 0, 7>>}}
     end
@@ -515,7 +520,8 @@ defmodule BeamFileTest do
     end
   end
 
-  if TestSupport.otp_release?(25) do
+  if (!TestSupport.version?("~> 1.14") && !TestSupport.otp_release?(22)) ||
+       (TestSupport.version?("~> 1.14") && TestSupport.otp_release?(:latest)) do
     @math_erl_code TestSupport.fixture_version("math.erl")
 
     describe "erl_code/1" do

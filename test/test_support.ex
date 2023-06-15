@@ -1,6 +1,8 @@
 defmodule TestSupport do
   @moduledoc false
 
+  @latest_otp_release 26
+
   def system_version do
     {:ok, version} = Version.parse(System.version())
 
@@ -12,10 +14,10 @@ defmodule TestSupport do
     end
   end
 
-  def fixture_version(file) do
+  def fixture_version(file, opts \\ []) do
     path = "test/fixtures/#{system_version()}/#{file}"
 
-    if Path.extname(file) == ".exs" do
+    if Keyword.get(opts, :eval, false) do
       path |> Code.eval_file() |> elem(0)
     else
       File.read!(path)
@@ -25,6 +27,10 @@ defmodule TestSupport do
   def version?(require) do
     {:ok, version} = Version.parse(System.version())
     Version.match?(version, require)
+  end
+
+  def otp_release?(:latest) do
+    otp_release?(@latest_otp_release)
   end
 
   def otp_release?(release) when is_integer(release) do

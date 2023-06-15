@@ -5,6 +5,7 @@ defmodule BeamFile.Normalizer do
 
   @chars Enum.to_list(?a..?z) ++ Enum.to_list(?A..?Z) ++ Enum.to_list(?0..?9) ++ [??, ?!, ?_]
   @none_unquotes [
+    :%{},
     :{},
     :->,
     :<<>>,
@@ -90,6 +91,17 @@ defmodule BeamFile.Normalizer do
 
   def normalize({{:., meta1, [:erlang, :binary_to_atom]}, meta2, [arg, :utf8]}) do
     {{:., meta1, [:erlang, :binary_to_atom]}, meta2, [arg, {:__block__, [], [:utf8]}]}
+  end
+
+  def normalize({:for, meta, args}) when is_list(args) do
+    {args, [last]} = Enum.split(args, -1)
+
+    # put the :do to the end of the keyword list
+    block = Keyword.fetch!(last, :do)
+    last = last |> Keyword.delete(:do) |> Enum.concat([{:do, block}])
+
+    args = normalize(args ++ [last])
+    {:for, meta, args}
   end
 
   def normalize({expr, meta, args}) do
