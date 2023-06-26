@@ -517,8 +517,8 @@ defmodule BeamFileTest do
   end
 
   if TestSupport.version?(:latest, :latest) or
-       TestSupport.version?("1.14.5", 25.3) or
-       TestSupport.version?("1.13.4", 25.3) do
+       TestSupport.version?("1.14.5", 25) or
+       TestSupport.version?("1.13.4", 25) do
     describe "erl_code/1" do
       test "returns Erlang code for a module" do
         assert {:ok, code} = BeamFile.erl_code(Math)
