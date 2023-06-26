@@ -2,31 +2,14 @@ defmodule TestSupport do
   @moduledoc false
 
   @latest_otp_release 26
+  @latest_elixir_version "1.15.0"
 
-  def system_version do
-    {:ok, version} = Version.parse(System.version())
-
-    cond do
-      Version.match?(version, "~> 1.14") -> "1.14.5"
-      Version.match?(version, "~> 1.13") -> "1.13.4"
-      Version.match?(version, "~> 1.12") -> "1.12.3"
-      Version.match?(version, "~> 1.11") -> "1.11.4"
-    end
-  end
-
-  def fixture_version(file, opts \\ []) do
-    path = "test/fixtures/#{system_version()}/#{file}"
-
-    if Keyword.get(opts, :eval, false) do
-      path |> Code.eval_file() |> elem(0)
-    else
-      File.read!(path)
-    end
+  def version?(:latest) do
+    version?(@latest_elixir_version)
   end
 
   def version?(require) do
-    {:ok, version} = Version.parse(System.version())
-    Version.match?(version, require)
+    Version.match?(system_version(), require)
   end
 
   def otp_release?(:latest) do
@@ -39,5 +22,19 @@ defmodule TestSupport do
 
   def otp_release?(releases) when is_list(releases) do
     Enum.any?(releases, &otp_release?/1)
+  end
+
+  def fixture(file, opts \\ []) do
+    path = "test/fixtures/#{system_version()}/#{file}"
+
+    if Keyword.get(opts, :eval, false) do
+      path |> Code.eval_file() |> elem(0)
+    else
+      File.read!(path)
+    end
+  end
+
+  defp system_version do
+    with {:ok, version} <- Version.parse(System.version()), do: version
   end
 end
