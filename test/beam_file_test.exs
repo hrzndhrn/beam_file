@@ -92,8 +92,8 @@ defmodule BeamFileTest do
 
     test "returns an error for an invalid path" do
       message = """
-      Abstract code for 'invalid/path' not available, \
-      reason: {:file_error, 'invalid/path.beam', :enoent}\
+      Abstract code for #{inspect('invalid/path')} not available, \
+      reason: {:file_error, #{inspect('invalid/path.beam')}, :enoent}\
       """
 
       assert_raise Error, message, fn ->
