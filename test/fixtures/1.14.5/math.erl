@@ -54,7 +54,7 @@
 '__info__'(macros) -> [{biggest, 2}];
 '__info__'(struct) -> nil;
 '__info__'(exports_md5) ->
-    <<"ùÓË\233Ëùï\202$.­o»¸¨\030">>;
+    <<"\023f\225¯-?\002Ñô\025ÿ\t\210Mò:">>;
 '__info__'(Key = attributes) ->
     erlang:get_module_info('Elixir.Math', Key);
 '__info__'(Key = compile) ->
