@@ -1,6 +1,6 @@
 {:ok,
  [
-   {:attribute, 1, :file, {'test/fixtures/math.ex', 1}},
+   {:attribute, 1, :file, {~c"test/fixtures/math.ex", 1}},
    {:attribute, 1, :module, Math},
    {:attribute, 1, :compile, [:no_auto_import]},
    {:attribute, 33, :spec,

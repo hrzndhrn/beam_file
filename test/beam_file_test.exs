@@ -70,8 +70,8 @@ defmodule BeamFileTest do
     end
 
     test "returns an error for an invalid path" do
-      assert BeamFile.abstract_code('invalid/path') ==
-               {:error, {:file_error, 'invalid/path.beam', :enoent}}
+      assert BeamFile.abstract_code(~c"invalid/path") ==
+               {:error, {:file_error, ~c"invalid/path.beam", :enoent}}
     end
   end
 
@@ -97,7 +97,7 @@ defmodule BeamFileTest do
       """
 
       assert_raise Error, message, fn ->
-        BeamFile.abstract_code!('invalid/path')
+        BeamFile.abstract_code!(~c"invalid/path")
       end
     end
   end
@@ -200,7 +200,7 @@ defmodule BeamFileTest do
     end
 
     test "returns an error for an invalid path" do
-      assert BeamFile.byte_code('invalid/path') == {:error, :enoent}
+      assert BeamFile.byte_code(~c"invalid/path") == {:error, :enoent}
     end
   end
 
@@ -223,24 +223,24 @@ defmodule BeamFileTest do
 
   describe "chunk/2" do
     test "return chunk Dbgi for a module" do
-      assert {:ok, dbgi} = BeamFile.chunk(Math, 'Dbgi')
+      assert {:ok, dbgi} = BeamFile.chunk(Math, ~c"Dbgi")
       assert is_binary(dbgi) == true
     end
 
     test "return chunk Dbgi for a tuple" do
-      assert {:ok, dbgi} = BeamFile.chunk({:module, Math, BeamFile.read!(Math), []}, 'Dbgi')
+      assert {:ok, dbgi} = BeamFile.chunk({:module, Math, BeamFile.read!(Math), []}, ~c"Dbgi")
       assert is_binary(dbgi) == true
     end
 
     test "return chunk Dbgi for  a path" do
       path = String.to_charlist(@math_beam_path)
-      assert {:ok, dbgi} = BeamFile.chunk(path, 'Dbgi')
+      assert {:ok, dbgi} = BeamFile.chunk(path, ~c"Dbgi")
       assert is_binary(dbgi) == true
     end
 
     test "return chunk Dbgi for  binary" do
       binary = File.read!(@math_beam_path)
-      assert {:ok, dbgi} = BeamFile.chunk(binary, 'Dbgi')
+      assert {:ok, dbgi} = BeamFile.chunk(binary, ~c"Dbgi")
       assert is_binary(dbgi) == true
     end
 
@@ -259,7 +259,7 @@ defmodule BeamFileTest do
 
     test "returns chunks for :docs and 'Docs'" do
       assert {:ok, per_name} = BeamFile.chunk(Math, :docs)
-      assert {:ok, per_id} = BeamFile.chunk(Math, 'Docs')
+      assert {:ok, per_id} = BeamFile.chunk(Math, ~c"Docs")
       assert per_name == :erlang.binary_to_term(per_id)
     end
 
@@ -270,7 +270,7 @@ defmodule BeamFileTest do
 
   describe "chunk!/2" do
     test "return chunk Dbgi for  a module" do
-      dbgi = BeamFile.chunk!(Math, 'Dbgi')
+      dbgi = BeamFile.chunk!(Math, ~c"Dbgi")
       assert is_binary(dbgi) == true
     end
 
@@ -308,8 +308,8 @@ defmodule BeamFileTest do
     end
 
     test "returns an error for an invalid path" do
-      assert BeamFile.debug_info('invalid/path') ==
-               {:error, {:file_error, 'invalid/path.beam', :enoent}}
+      assert BeamFile.debug_info(~c"invalid/path") ==
+               {:error, {:file_error, ~c"invalid/path.beam", :enoent}}
     end
 
     test "returns an error if no debug info is available" do
@@ -570,36 +570,36 @@ defmodule BeamFileTest do
 
     if TestSupport.otp_release?([25, 26]) do
       assert [
-               {'AtU8', _, _},
-               {'Code', _, _},
-               {'StrT', _, _},
-               {'ImpT', _, _},
-               {'ExpT', _, _},
-               {'LitT', _, _},
-               {'LocT', _, _},
-               {'Attr', _, _},
-               {'CInf', _, _},
-               {'Dbgi', _, _},
-               {'Docs', _, _},
-               {'ExCk', _, _},
-               {'Line', _, _},
-               {'Type', _, _}
+               {~c"AtU8", _, _},
+               {~c"Code", _, _},
+               {~c"StrT", _, _},
+               {~c"ImpT", _, _},
+               {~c"ExpT", _, _},
+               {~c"LitT", _, _},
+               {~c"LocT", _, _},
+               {~c"Attr", _, _},
+               {~c"CInf", _, _},
+               {~c"Dbgi", _, _},
+               {~c"Docs", _, _},
+               {~c"ExCk", _, _},
+               {~c"Line", _, _},
+               {~c"Type", _, _}
              ] = info[:chunks]
     else
       assert [
-               {'AtU8', _, _},
-               {'Code', _, _},
-               {'StrT', _, _},
-               {'ImpT', _, _},
-               {'ExpT', _, _},
-               {'LitT', _, _},
-               {'LocT', _, _},
-               {'Attr', _, _},
-               {'CInf', _, _},
-               {'Dbgi', _, _},
-               {'Docs', _, _},
-               {'ExCk', _, _},
-               {'Line', _, _}
+               {~c"AtU8", _, _},
+               {~c"Code", _, _},
+               {~c"StrT", _, _},
+               {~c"ImpT", _, _},
+               {~c"ExpT", _, _},
+               {~c"LitT", _, _},
+               {~c"LocT", _, _},
+               {~c"Attr", _, _},
+               {~c"CInf", _, _},
+               {~c"Dbgi", _, _},
+               {~c"Docs", _, _},
+               {~c"ExCk", _, _},
+               {~c"Line", _, _}
              ] = info[:chunks]
     end
   end
@@ -628,8 +628,8 @@ defmodule BeamFileTest do
     end
 
     test "returns an error tuple for an invalid path" do
-      assert BeamFile.info('invalid/path') ==
-               {:error, {:file_error, 'invalid/path.beam', :enoent}}
+      assert BeamFile.info(~c"invalid/path") ==
+               {:error, {:file_error, ~c"invalid/path.beam", :enoent}}
     end
 
     test "returns an error tuple for invalid binary" do
