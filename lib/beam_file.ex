@@ -69,16 +69,16 @@ defmodule BeamFile do
   @type chunk_ref :: chunk_name | chunk_id
 
   @chunk_ids [
-    'Abst',
-    'AtU8',
-    'Attr',
-    'CInf',
-    'Dbgi',
-    'Docs',
-    'ExCk',
-    'ExpT',
-    'ImpT',
-    'LocT'
+    ~c"Abst",
+    ~c"AtU8",
+    ~c"Attr",
+    ~c"CInf",
+    ~c"Dbgi",
+    ~c"Docs",
+    ~c"ExCk",
+    ~c"ExpT",
+    ~c"ImpT",
+    ~c"LocT"
   ]
 
   @chunk_names [
@@ -836,20 +836,21 @@ defmodule BeamFile do
 
   # Some chunks are not available via a chunk-name. For this chunks we need the
   # chunk-id.
-  defp to_erl_chunk(:docs), do: 'Docs'
+  defp to_erl_chunk(:docs), do: ~c"Docs"
 
-  defp to_erl_chunk(:elixir_checker), do: 'ExCk'
+  defp to_erl_chunk(:elixir_checker), do: ~c"ExCk"
 
   defp to_erl_chunk(chunk), do: chunk
 
   # For some chunks we need a transformation.
-  defp to_elixir_data({'Docs', data}, :names), do: {:docs, :erlang.binary_to_term(data)}
+  defp to_elixir_data({~c"Docs", data}, :names), do: {:docs, :erlang.binary_to_term(data)}
 
-  defp to_elixir_data({'ExCk', data}, :names), do: {:elixir_checker, :erlang.binary_to_term(data)}
+  defp to_elixir_data({~c"ExCk", data}, :names),
+    do: {:elixir_checker, :erlang.binary_to_term(data)}
 
-  defp to_elixir_data({'Docs', data}, :ids), do: {'Docs', data}
+  defp to_elixir_data({~c"Docs", data}, :ids), do: {~c"Docs", data}
 
-  defp to_elixir_data({'ExCk', data}, :ids), do: {'ExCk', data}
+  defp to_elixir_data({~c"ExCk", data}, :ids), do: {~c"ExCk", data}
 
   defp to_elixir_data(item, _type), do: item
 
