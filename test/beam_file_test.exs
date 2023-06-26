@@ -516,32 +516,52 @@ defmodule BeamFileTest do
     end
   end
 
-  describe "erl_code/1" do
-    test "returns Erlang code for a module" do
-      assert {:ok, code} = BeamFile.erl_code(Math)
-      assert code <> "\n" == @math_erl_code
+  if TestSupport.version?(:latest, :latest) or
+       TestSupport.version?("1.14.5", 25.3) or
+       TestSupport.version?("1.13.4", 25.3) do
+    describe "erl_code/1" do
+      test "returns Erlang code for a module" do
+        assert {:ok, code} = BeamFile.erl_code(Math)
+        assert code <> "\n" == @math_erl_code
+      end
+
+      test "returns Erlang code for a tuple" do
+        assert {:ok, code} = BeamFile.erl_code({:module, Math, BeamFile.read!(Math), []})
+        assert code <> "\n" == @math_erl_code
+      end
+
+      test "returns an error for invalid binary" do
+        assert BeamFile.erl_code(<<0, 42>>) == {:error, {:not_a_beam_file, <<0, 42>>}}
+      end
     end
 
-    test "returns Erlang code for a tuple" do
-      assert {:ok, code} = BeamFile.erl_code({:module, Math, BeamFile.read!(Math), []})
-      assert code <> "\n" == @math_erl_code
+    describe "erl_code!/1" do
+      test "returns Erlang code for a module" do
+        assert BeamFile.erl_code!(Math) <> "\n" == @math_erl_code
+      end
+
+      test "raises an error for invalid binary" do
+        message = "Erlang code for <<77>> not available, reason: {:not_a_beam_file, <<77>>}"
+
+        assert_raise Error, message, fn ->
+          BeamFile.erl_code!(<<77>>)
+        end
+      end
+    end
+  else
+    describe "erl_code/1" do
+      test "returns Erlang code for a module" do
+        assert {:ok, code} = BeamFile.erl_code(Math)
+      end
+
+      test "returns Erlang code for a tuple" do
+        assert {:ok, code} = BeamFile.erl_code({:module, Math, BeamFile.read!(Math), []})
+      end
     end
 
-    test "returns an error for invalid binary" do
-      assert BeamFile.erl_code(<<0, 42>>) == {:error, {:not_a_beam_file, <<0, 42>>}}
-    end
-  end
-
-  describe "erl_code!/1" do
-    test "returns Erlang code for a module" do
-      assert BeamFile.erl_code!(Math) <> "\n" == @math_erl_code
-    end
-
-    test "raises an error for invalid binary" do
-      message = "Erlang code for <<77>> not available, reason: {:not_a_beam_file, <<77>>}"
-
-      assert_raise Error, message, fn ->
-        BeamFile.erl_code!(<<77>>)
+    describe "erl_code!/1" do
+      test "returns Erlang code for a module" do
+        assert BeamFile.erl_code!(Math)
       end
     end
   end

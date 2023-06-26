@@ -12,6 +12,10 @@ defmodule TestSupport do
     Version.match?(system_version(), require)
   end
 
+  def version?(elixir_version, otp_release) do
+    version?(elixir_version) and otp_release?(otp_release)
+  end
+
   def otp_release?(:latest) do
     otp_release?(@latest_otp_release)
   end
