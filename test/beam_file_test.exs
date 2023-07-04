@@ -13,7 +13,6 @@ defmodule BeamFileTest do
   @math_docs TestSupport.fixture("math_docs.exs", eval: true)
   @math_with_docs TestSupport.fixture("math.exs")
   @math_without_docs TestSupport.fixture("math_without_docs.exs")
-  @math_erl_code TestSupport.fixture("math.erl")
 
   @elixir_modules :elixir
                   |> Application.spec(:modules)
@@ -519,6 +518,8 @@ defmodule BeamFileTest do
   if TestSupport.version?(:latest, :latest) or
        TestSupport.version?("1.14.5", 25) or
        TestSupport.version?("1.13.4", 25) do
+    @math_erl_code TestSupport.fixture("math.erl")
+
     describe "erl_code/1" do
       test "returns Erlang code for a module" do
         assert {:ok, code} = BeamFile.erl_code(Math)
@@ -551,11 +552,11 @@ defmodule BeamFileTest do
   else
     describe "erl_code/1" do
       test "returns Erlang code for a module" do
-        assert {:ok, code} = BeamFile.erl_code(Math)
+        assert {:ok, _code} = BeamFile.erl_code(Math)
       end
 
       test "returns Erlang code for a tuple" do
-        assert {:ok, code} = BeamFile.erl_code({:module, Math, BeamFile.read!(Math), []})
+        assert {:ok, _code} = BeamFile.erl_code({:module, Math, BeamFile.read!(Math), []})
       end
     end
 
