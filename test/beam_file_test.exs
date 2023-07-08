@@ -487,6 +487,12 @@ defmodule BeamFileTest do
         assert {:ok, _code} = BeamFile.elixir_code(unquote(module), docs: true)
       end
     end
+
+    test "raises FunctionClauseError for Kernel.SpecialForms" do
+      assert_raise FunctionClauseError, fn ->
+        BeamFile.elixir_code(Kernel.SpecialForms)
+      end
+    end
   end
 
   describe "elixir_code!/2" do
@@ -718,6 +724,10 @@ defmodule BeamFileTest do
 
     test "returns the elixir ast for PlusPlus" do
       assert BeamFile.elixir_quoted!(PlusPlus)
+    end
+
+    test "returns the elixir ast for Kernel.SpecialForms" do
+      assert BeamFile.elixir_quoted!(Kernel.SpecialForms)
     end
 
     test "raises an error for an unknown module" do
