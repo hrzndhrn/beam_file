@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.2 - 2023/07/08
+
++ Fix `BeamFile.Normalizer`
+
 ## 0.5.1 - 2023/06/15
 
 + Fix comprehensions
