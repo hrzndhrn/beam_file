@@ -550,7 +550,7 @@ defmodule BeamFile do
 
   def elixir_code({:module, _name, bin, _context}, opts), do: elixir_code(bin, opts)
 
-  def elixir_code(input, opts) when is_atom(input) do
+  def elixir_code(input, opts) when is_atom(input) and input != Kernel.SpecialForms do
     with {:ok, path} <- path(input) do
       elixir_code(path, opts)
     end

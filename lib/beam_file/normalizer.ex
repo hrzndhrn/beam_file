@@ -73,12 +73,18 @@ defmodule BeamFile.Normalizer do
   end
 
   def normalize({:super, meta, args}) do
-    {{_kind, name}, meta} = Keyword.pop!(meta, :super)
+    case Keyword.has_key?(meta, :super) do
+      true ->
+        {{_kind, name}, meta} = Keyword.pop!(meta, :super)
 
-    if unquote?(name) do
-      {{:unquote, meta, [name]}, meta, normalize(args)}
-    else
-      {name, meta, args}
+        if unquote?(name) do
+          {{:unquote, meta, [name]}, meta, normalize(args)}
+        else
+          {name, meta, args}
+        end
+
+      false ->
+        {:super, meta, args}
     end
   end
 
@@ -96,12 +102,18 @@ defmodule BeamFile.Normalizer do
   def normalize({:for, meta, args}) when is_list(args) do
     {args, [last]} = Enum.split(args, -1)
 
-    # put the :do to the end of the keyword list
-    block = Keyword.fetch!(last, :do)
-    last = last |> Keyword.delete(:do) |> Enum.concat([{:do, block}])
+    case Keyword.keyword?(last) do
+      true ->
+        # put the :do to the end of the keyword list
+        block = Keyword.fetch!(last, :do)
+        last = last |> Keyword.delete(:do) |> Enum.concat([{:do, block}])
 
-    args = normalize(args ++ [last])
-    {:for, meta, args}
+        args = normalize(args ++ [last])
+        {:for, meta, args}
+
+      false ->
+        {:for, meta, args}
+    end
   end
 
   def normalize({expr, meta, args}) do
