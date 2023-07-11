@@ -563,7 +563,7 @@ defmodule BeamFile do
         if docs do
           DebugInfo.code(debug_info, docs)
         else
-          debug_info |> DebugInfo.ast() |> Macro.to_string()
+          debug_info |> DebugInfo.ast(:code) |> Macro.to_string()
         end
 
       {:ok, code}

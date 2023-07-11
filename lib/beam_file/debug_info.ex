@@ -5,7 +5,7 @@ defmodule BeamFile.DebugInfo do
 
   @default_lang "en"
 
-  def ast(%{module: module} = debug_info) do
+  def ast(%{module: module} = debug_info, target \\ :ast) do
     ast = debug_info |> definitions(:desc) |> Enum.map(fn {_name, _arity, ast} -> ast end)
 
     Normalizer.normalize(
@@ -13,7 +13,8 @@ defmodule BeamFile.DebugInfo do
        [
          {:__aliases__, [alias: false], [module]},
          [do: {:__block__, [], ast}]
-       ]}
+       ]},
+      target
     )
   end
 
@@ -87,7 +88,7 @@ defmodule BeamFile.DebugInfo do
 
   defp defs_to_code([{name, arity, ast} | defs], defdocs, acc) do
     {defdoc, defdocs} = defdoc(name, arity, defdocs)
-    code = ast |> Normalizer.normalize() |> Macro.to_string()
+    code = ast |> Normalizer.normalize(:code) |> Macro.to_string()
 
     defs_to_code(defs, defdocs, [defdoc, code | acc])
   end
