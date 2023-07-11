@@ -29,6 +29,26 @@ defmodule Elixir.Comps do
         do: (acc -> Map.update(acc, <<x>>, 1, fn x1 -> :erlang.+(x1, 1) end))
   end
 
+  def seven do
+    :erlang.++(for(x <- [1, 2], into: [], do: x), for(y <- [3, 4], into: [], do: y))
+  end
+
+  def eight do
+    :erlang.--(for(x <- [1, 2], into: [], do: x), for(y <- [3, 4], into: [], do: y))
+  end
+
+  def nine(list) do
+    :erlang.++(list, Enum.sort(for x <- [1, 2], into: [], do: x))
+  end
+
+  def ten(list) do
+    :erlang.++(list, Enum.sort(for x <- [1, 2], into: [], do: x))
+  end
+
+  def eleven(list) do
+    :erlang.--(list, Enum.sort(for x <- [1, 2], into: [], do: x))
+  end
+
   def users(users) do
     for {type, name} when :erlang."/="(type, :guest) <- users, into: [], do: String.upcase(name)
   end

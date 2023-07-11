@@ -28,6 +28,26 @@ defmodule Comps do
     end
   end
 
+  def seven do
+    for(x <- [1, 2], do: x) ++ for y <- [3, 4], do: y
+  end
+
+  def eight do
+    for(x <- [1, 2], do: x) -- for y <- [3, 4], do: y
+  end
+
+  def nine(list) do
+    list ++ Enum.sort(for x <- [1, 2], do: x)
+  end
+
+  def ten(list) do
+    :erlang.++(list, Enum.sort(for x <- [1, 2], do: x))
+  end
+
+  def eleven(list) do
+    :erlang.--(list, Enum.sort(for x <- [1, 2], do: x))
+  end
+
   def users(users) do
     for {type, name} when type != :guest <- users do
       String.upcase(name)
