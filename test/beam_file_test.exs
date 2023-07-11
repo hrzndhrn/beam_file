@@ -717,7 +717,13 @@ defmodule BeamFileTest do
     test "returns the elixir ast for Comps" do
       assert quoted = BeamFile.elixir_quoted!(Comps)
       assert quoted == TestSupport.fixture("comps_ast.exs", eval: true)
-      assert [{Comps, _bin}] = Code.compile_quoted(quoted)
+
+      {:defmodule, meta, [_ | block]} = quoted
+
+      assert [{TestComps, _bin}] =
+               Code.compile_quoted(
+                 {:defmodule, meta, [{:__aliases__, [alias: false], [TestComps]} | block]}
+               )
     end
 
     test "returns the elixir ast for MultiWhen" do
