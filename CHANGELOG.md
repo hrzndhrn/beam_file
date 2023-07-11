@@ -1,9 +1,9 @@
 # Changelog
 
-## 0.5.3 - 2023/07/08
+## 0.5.3 - 2023/07/11
 
-+ The `BeamFile.Normalizer` generates now different AST formats for 
-  `BeamFile.elixir_code/2` and `BeamFile.elixir_quoted/2`. 
++ The `BeamFile.Normalizer` generates now different AST formats for
+  `BeamFile.elixir_code/2` and `BeamFile.elixir_quoted/2`.
 
 ## 0.5.2 - 2023/07/08
 
