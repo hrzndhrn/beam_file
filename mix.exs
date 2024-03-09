@@ -58,10 +58,10 @@ defmodule BeamFile.MixProject do
   defp deps do
     [
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.3", only: :dev, runtime: false},
-      {:ex_doc, "~> 0.30", only: :dev, runtime: false},
-      {:excoveralls, "~> 0.16", only: :test},
-      {:recode, "~> 0.5.1", only: [:dev, :test]}
+      {:dialyxir, "~> 1.4", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.31", only: :dev, runtime: false},
+      {:excoveralls, "~> 0.18", only: :test},
+      {:recode, "~> 0.7", only: [:dev, :test]}
     ]
   end
 

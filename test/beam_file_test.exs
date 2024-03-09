@@ -19,6 +19,7 @@ defmodule BeamFileTest do
                   |> Enum.concat(Application.spec(:logger, :modules))
                   |> Enum.reject(fn
                     Kernel.SpecialForms -> true
+                    :iex -> true
                     module -> module |> to_string() |> String.starts_with?("elixir")
                   end)
 
@@ -450,7 +451,7 @@ defmodule BeamFileTest do
     if TestSupport.version?("~> 1.14") do
       test "returns elixir code with multiple whens" do
         assert {:ok, code} = BeamFile.elixir_code(MultiWhen)
-        assert code <> "\n" == File.read!("test/fixtures/multi_when.exs")
+        assert code <> "\n" == TestSupport.fixture("multi_when.exs")
       end
     end
 
@@ -469,7 +470,7 @@ defmodule BeamFileTest do
       assert code <> "\n" == File.read!("test/fixtures/doc_doc.exs")
     end
 
-    test "returns elixir code for the Comps module" do
+    test "returns xxxx elixir code for the Comps module" do
       assert {:ok, code} = BeamFile.elixir_code(Comps)
       assert code <> "\n" == TestSupport.fixture("comps.exs")
     end

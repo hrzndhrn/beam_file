@@ -125,18 +125,29 @@ defmodule BeamFile.Normalizer do
   end
 
   def normalize({expr, meta, args}, target) do
-    if unquote?(expr) do
-      {{:unquote, [], [expr]}, meta, normalize(args, target)}
-    else
-      {expr, meta, normalize(args, target)}
+    cond do
+      unquote?(expr) ->
+        {{:unquote, [], [expr]}, meta, normalize(args, target)}
+
+      var_ref?(expr) ->
+        {var_ref(expr), meta, normalize(args, target)}
+
+      true ->
+        {expr, meta, normalize(args, target)}
     end
   end
 
   def normalize(block, _target), do: block
 
+  defp var_ref?(ref) when is_atom(ref), do: Regex.match?(~r/^\&\d+$/, to_string(ref))
+  defp var_ref?(_), do: false
+
+  defp var_ref(ref), do: ref |> to_string() |> String.replace("&", "x") |> String.to_atom()
+
   defp unquote?(atom) when atom in @none_unquotes, do: false
   defp unquote?(atom) when is_atom(atom), do: atom |> to_string() |> unquote?()
   defp unquote?(<<>>), do: false
+  defp unquote?("&" <> str), do: !Regex.match?(~r/^\d*$/, str)
   defp unquote?(<<char, rest::binary>>) when char in @chars, do: unquote?(rest)
   defp unquote?(str) when is_binary(str), do: true
   defp unquote?(_expr), do: false
