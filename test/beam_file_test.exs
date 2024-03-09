@@ -73,8 +73,15 @@ defmodule BeamFileTest do
     end
 
     test "returns an error for an invalid path" do
-      assert BeamFile.abstract_code('invalid/path') ==
-               {:error, {:file_error, 'invalid/path.beam', :enoent}}
+      assert BeamFile.abstract_code('invalid/path') == {:error, :enoent}
+    end
+
+    test "returns an error for an invalid charlist" do
+      assert BeamFile.abstract_code([{1}]) == {:error, :invalid_input}
+    end
+
+    test "returns an error for an invalid input" do
+      assert BeamFile.abstract_code(42) in [{:error, :invalid_input}, {:ok, {:none, %{}, []}}]
     end
   end
 
@@ -95,8 +102,7 @@ defmodule BeamFileTest do
 
     test "returns an error for an invalid path" do
       message = """
-      Abstract code for #{inspect('invalid/path')} not available, \
-      reason: {:file_error, #{inspect('invalid/path.beam')}, :enoent}\
+      Abstract code for #{inspect('invalid/path')} not available, reason: :enoent\
       """
 
       assert_raise Error, message, fn ->
@@ -111,7 +117,7 @@ defmodule BeamFileTest do
     end
 
     test "returns all chunks for a tuple with default type" do
-      assert {:ok, _chunks} = BeamFile.all_chunks({:module, Math, BeamFile.read!(Math), []})
+      assert {:ok, _chunks} = BeamFile.all_chunks({:module, Math, BeamFile.binary!(Math), []})
     end
 
     test "returns all chunks for a module with type ids" do
@@ -181,7 +187,7 @@ defmodule BeamFileTest do
     end
 
     test "returns the byte code for tuple" do
-      assert {:ok, byte_code} = BeamFile.byte_code({:module, Math, BeamFile.read!(Math), []})
+      assert {:ok, byte_code} = BeamFile.byte_code({:module, Math, BeamFile.binary!(Math), []})
       assert elem(byte_code, 0) == :beam_file
       assert elem(byte_code, 1) == Math
     end
@@ -194,12 +200,16 @@ defmodule BeamFileTest do
       assert elem(byte_code, 1) == Math
     end
 
+    test "returns an :beam_disasm error" do
+      assert {:error, :invalid_input} = BeamFile.byte_code([{Foo, [55]}])
+    end
+
     test "returns an error for an unknown module" do
       assert BeamFile.byte_code(Unknown.Module) == {:error, :non_existing}
     end
 
     test "returns an error for invalid binary" do
-      assert BeamFile.byte_code(<<42>>) == {:error, {:not_a_beam_file, "*"}}
+      assert BeamFile.byte_code(<<42>>) == {:error, {:beam_lib, {:not_a_beam_file, "*"}}}
     end
 
     test "returns an error for an invalid path" do
@@ -216,7 +226,8 @@ defmodule BeamFileTest do
     end
 
     test "returns an error for invalid binary" do
-      message = "Byte code for <<42>> not available, reason: {:not_a_beam_file, <<42>>}"
+      message =
+        "Byte code for <<42>> not available, reason: {:beam_lib, {:not_a_beam_file, <<42>>}}"
 
       assert_raise Error, message, fn ->
         BeamFile.byte_code!(<<42>>)
@@ -231,7 +242,7 @@ defmodule BeamFileTest do
     end
 
     test "return chunk Dbgi for a tuple" do
-      assert {:ok, dbgi} = BeamFile.chunk({:module, Math, BeamFile.read!(Math), []}, 'Dbgi')
+      assert {:ok, dbgi} = BeamFile.chunk({:module, Math, BeamFile.binary!(Math), []}, 'Dbgi')
       assert is_binary(dbgi) == true
     end
 
@@ -307,12 +318,11 @@ defmodule BeamFileTest do
     end
 
     test "return debug info for tuple" do
-      assert {:ok, _info} = BeamFile.debug_info({:module, Math, BeamFile.read!(Math), []})
+      assert {:ok, _info} = BeamFile.debug_info({:module, Math, BeamFile.binary!(Math), []})
     end
 
     test "returns an error for an invalid path" do
-      assert BeamFile.debug_info('invalid/path') ==
-               {:error, {:file_error, 'invalid/path.beam', :enoent}}
+      assert BeamFile.debug_info('invalid/path') == {:error, :enoent}
     end
 
     test "returns an error if no debug info is available" do
@@ -365,11 +375,21 @@ defmodule BeamFileTest do
     end
 
     test "return docs info for tuple" do
-      assert BeamFile.docs({:module, Math, BeamFile.read!(Math), []}) == @math_docs
+      assert BeamFile.docs({:module, Math, BeamFile.binary!(Math), []}) == @math_docs
     end
 
     test "returns an error for invalid binary" do
       assert BeamFile.docs(<<0, 0, 55>>) == {:error, {:not_a_beam_file, <<0, 0, 55>>}}
+    end
+
+    test "returns an error for missing chunk" do
+      [{_module, binary}] =
+        Code.compile_string("""
+        defmodule Foo do
+        end
+        """)
+
+      assert BeamFile.docs(binary) in [{:ok, :missing_chunk}, {:ok, {:none, %{}, []}}]
     end
   end
 
@@ -388,6 +408,107 @@ defmodule BeamFileTest do
     end
   end
 
+  describe "docs!/2" do
+    test "with format :info" do
+      assert BeamFile.docs!(Math, format: :info) ==
+               {[
+                  {{:function, :add, 2}, [since: nil, hidden: false, deprecated: false]},
+                  {{:function, :divide, 2}, [since: nil, hidden: false, deprecated: false]},
+                  {{:function, :double, 1}, [since: nil, hidden: false, deprecated: false]},
+                  {{:function, :odd_or_even, 1}, [since: nil, hidden: false, deprecated: false]},
+                  {{:function, :pi, 0}, [since: nil, hidden: false, deprecated: false]},
+                  {{:function, :triple, 1}, [since: nil, hidden: false, deprecated: false]},
+                  {{:macro, :biggest, 2}, [since: nil, hidden: false, deprecated: false]},
+                  {{:type, :num, 0}, [since: nil, hidden: false, deprecated: false]},
+                  {{:type, :x, 0}, [since: nil, hidden: false, deprecated: false]}
+                ], [since: nil, hidden: false, deprecated: false]}
+
+      assert BeamFile.docs!(DocTags, format: :info) == {
+               [
+                 {{:function, :alpha, 0}, [since: nil, hidden: false, deprecated: false]},
+                 {{:function, :bravo, 0}, [since: "1.2.0", hidden: false, deprecated: false]},
+                 {{:function, :charlie, 0}, [since: "1.3.0", hidden: false, deprecated: false]},
+                 {{:function, :delta, 0}, [since: "1.3.0", hidden: false, deprecated: true]},
+                 {{:function, :echo, 0}, [since: "1.3.0", hidden: true, deprecated: true]},
+                 {{:function, :foxtrot, 0}, [since: "1.3.0", hidden: false, deprecated: true]},
+                 {{:type, :alpha, 0}, [since: "1.2.0", hidden: false, deprecated: false]}
+               ],
+               [since: "1.1.0", hidden: false, deprecated: false]
+             }
+    end
+
+    test "with since" do
+      assert BeamFile.docs!(DocTags, format: :since) ==
+               {[
+                  {{:function, :alpha, 0}, [since: nil]},
+                  {{:function, :bravo, 0}, [since: "1.2.0"]},
+                  {{:function, :charlie, 0}, [since: "1.3.0"]},
+                  {{:function, :delta, 0}, [since: "1.3.0"]},
+                  {{:function, :echo, 0}, [since: "1.3.0"]},
+                  {{:function, :foxtrot, 0}, [since: "1.3.0"]},
+                  {{:type, :alpha, 0}, [since: "1.2.0"]}
+                ], [since: "1.1.0"]}
+
+      assert BeamFile.docs!(DocTags, format: :since, since: "~> 1.0") ==
+               {[
+                  {{:function, :bravo, 0}, [since: "1.2.0"]},
+                  {{:function, :charlie, 0}, [since: "1.3.0"]},
+                  {{:function, :delta, 0}, [since: "1.3.0"]},
+                  {{:function, :echo, 0}, [since: "1.3.0"]},
+                  {{:function, :foxtrot, 0}, [since: "1.3.0"]},
+                  {{:type, :alpha, 0}, [since: "1.2.0"]}
+                ], [since: "1.1.0"]}
+
+      assert BeamFile.docs!(DocTags, format: :since, since: "~> 1.1") ==
+               BeamFile.docs!(DocTags, format: :since, since: "~> 1.2")
+
+      assert BeamFile.docs!(DocTags, format: :since, since: "~> 1.3") ==
+               {[
+                  {{:function, :charlie, 0}, [since: "1.3.0"]},
+                  {{:function, :delta, 0}, [since: "1.3.0"]},
+                  {{:function, :echo, 0}, [since: "1.3.0"]},
+                  {{:function, :foxtrot, 0}, [since: "1.3.0"]}
+                ], [since: "1.1.0"]}
+
+      assert BeamFile.docs!(DocTags, format: :since, since: "~> 1.4") == nil
+    end
+
+    test "with option hidden" do
+      assert BeamFile.docs!(DocTags, format: :info, hidden: true) ==
+               BeamFile.docs!(DocTags, format: :info)
+
+      assert BeamFile.docs!(DocTags, format: :info, hidden: false) ==
+               {[
+                  {{:function, :alpha, 0}, [since: nil, hidden: false, deprecated: false]},
+                  {{:function, :bravo, 0}, [since: "1.2.0", hidden: false, deprecated: false]},
+                  {{:function, :charlie, 0}, [since: "1.3.0", hidden: false, deprecated: false]},
+                  {{:function, :delta, 0}, [since: "1.3.0", hidden: false, deprecated: true]},
+                  {{:function, :foxtrot, 0}, [since: "1.3.0", hidden: false, deprecated: true]},
+                  {{:type, :alpha, 0}, [since: "1.2.0", hidden: false, deprecated: false]}
+                ], [since: "1.1.0", hidden: false, deprecated: false]}
+    end
+
+    test "with option deprecated" do
+      assert BeamFile.docs!(DocTags, format: :info, deprecated: true) ==
+               {[
+                  {{:function, :delta, 0}, [since: "1.3.0", hidden: false, deprecated: true]},
+                  {{:function, :echo, 0}, [since: "1.3.0", hidden: true, deprecated: true]},
+                  {{:function, :foxtrot, 0}, [since: "1.3.0", hidden: false, deprecated: true]}
+                ], [since: "1.1.0", hidden: false, deprecated: false]}
+
+      assert BeamFile.docs!(DocTags, format: :info, deprecated: false) ==
+               {[
+                  {{:function, :alpha, 0}, [since: nil, hidden: false, deprecated: false]},
+                  {{:function, :bravo, 0}, [since: "1.2.0", hidden: false, deprecated: false]},
+                  {{:function, :charlie, 0}, [since: "1.3.0", hidden: false, deprecated: false]},
+                  {{:type, :alpha, 0}, [since: "1.2.0", hidden: false, deprecated: false]}
+                ], [since: "1.1.0", hidden: false, deprecated: false]}
+
+      assert {_doc, _meta, docs} = BeamFile.docs!(DocTags, deprecated: false)
+      assert length(docs) == 4
+    end
+  end
+
   describe "elixir_code/2" do
     test "returns elixir code for the Math module" do
       assert {:ok, code} = BeamFile.elixir_code(Math)
@@ -396,13 +517,13 @@ defmodule BeamFileTest do
     end
 
     test "returns elixir code for the Math binary" do
-      assert {:ok, code} = BeamFile.elixir_code(BeamFile.read!(Math))
+      assert {:ok, code} = BeamFile.elixir_code(BeamFile.binary!(Math))
 
       assert code <> "\n" == @math_without_docs
     end
 
     test "returns elixir code for the Math tuple" do
-      assert {:ok, code} = BeamFile.elixir_code({:module, Math, BeamFile.read!(Math), []})
+      assert {:ok, code} = BeamFile.elixir_code({:module, Math, BeamFile.binary!(Math), []})
 
       assert code <> "\n" == @math_without_docs
     end
@@ -502,13 +623,13 @@ defmodule BeamFileTest do
     end
 
     test "returns elixir code for the Math binary" do
-      assert code = BeamFile.elixir_code!(BeamFile.read!(Math))
+      assert code = BeamFile.elixir_code!(BeamFile.binary!(Math))
 
       assert code <> "\n" == @math_without_docs
     end
 
     test "returns elixir code for the Math tuple" do
-      assert code = BeamFile.elixir_code!({:module, Math, BeamFile.read!(Math), []})
+      assert code = BeamFile.elixir_code!({:module, Math, BeamFile.binary!(Math), []})
 
       assert code <> "\n" == @math_without_docs
     end
@@ -534,7 +655,7 @@ defmodule BeamFileTest do
       end
 
       test "returns Erlang code for a tuple" do
-        assert {:ok, code} = BeamFile.erl_code({:module, Math, BeamFile.read!(Math), []})
+        assert {:ok, code} = BeamFile.erl_code({:module, Math, BeamFile.binary!(Math), []})
         assert code <> "\n" == @math_erl_code
       end
 
@@ -563,7 +684,7 @@ defmodule BeamFileTest do
       end
 
       test "returns Erlang code for a tuple" do
-        assert {:ok, _code} = BeamFile.erl_code({:module, Math, BeamFile.read!(Math), []})
+        assert {:ok, _code} = BeamFile.erl_code({:module, Math, BeamFile.binary!(Math), []})
       end
     end
 
@@ -574,51 +695,46 @@ defmodule BeamFileTest do
     end
   end
 
-  test "info/1" do
-    {:ok, info} = BeamFile.info(Math)
-    assert info[:file] =~ "_build/test/lib/beam_file/ebin/Elixir.Math.beam"
-    assert info[:module] == Math
-
-    if TestSupport.otp_release?([25, 26]) do
-      assert [
-               {'AtU8', _, _},
-               {'Code', _, _},
-               {'StrT', _, _},
-               {'ImpT', _, _},
-               {'ExpT', _, _},
-               {'LitT', _, _},
-               {'LocT', _, _},
-               {'Attr', _, _},
-               {'CInf', _, _},
-               {'Dbgi', _, _},
-               {'Docs', _, _},
-               {'ExCk', _, _},
-               {'Line', _, _},
-               {'Type', _, _}
-             ] = info[:chunks]
-    else
-      assert [
-               {'AtU8', _, _},
-               {'Code', _, _},
-               {'StrT', _, _},
-               {'ImpT', _, _},
-               {'ExpT', _, _},
-               {'LitT', _, _},
-               {'LocT', _, _},
-               {'Attr', _, _},
-               {'CInf', _, _},
-               {'Dbgi', _, _},
-               {'Docs', _, _},
-               {'ExCk', _, _},
-               {'Line', _, _}
-             ] = info[:chunks]
-    end
-  end
-
   describe "info/1" do
     test "returns info for a module" do
-      assert {:ok, info} = BeamFile.info(Math)
+      {:ok, info} = BeamFile.info(Math)
+      assert info[:file] =~ "_build/test/lib/beam_file/ebin/Elixir.Math.beam"
       assert info[:module] == Math
+
+      if TestSupport.otp_release?([25, 26]) do
+        assert [
+                 {'AtU8', _, _},
+                 {'Code', _, _},
+                 {'StrT', _, _},
+                 {'ImpT', _, _},
+                 {'ExpT', _, _},
+                 {'LitT', _, _},
+                 {'LocT', _, _},
+                 {'Attr', _, _},
+                 {'CInf', _, _},
+                 {'Dbgi', _, _},
+                 {'Docs', _, _},
+                 {'ExCk', _, _},
+                 {'Line', _, _},
+                 {'Type', _, _}
+               ] = info[:chunks]
+      else
+        assert [
+                 {'AtU8', _, _},
+                 {'Code', _, _},
+                 {'StrT', _, _},
+                 {'ImpT', _, _},
+                 {'ExpT', _, _},
+                 {'LitT', _, _},
+                 {'LocT', _, _},
+                 {'Attr', _, _},
+                 {'CInf', _, _},
+                 {'Dbgi', _, _},
+                 {'Docs', _, _},
+                 {'ExCk', _, _},
+                 {'Line', _, _}
+               ] = info[:chunks]
+      end
     end
 
     test "returns info for binary" do
@@ -628,7 +744,7 @@ defmodule BeamFileTest do
     end
 
     test "returns info for tuple" do
-      assert {:ok, info} = BeamFile.info({:module, Math, BeamFile.read!(Math), []})
+      assert {:ok, info} = BeamFile.info({:module, Math, BeamFile.binary!(Math), []})
       assert info[:module] == Math
     end
 
@@ -639,8 +755,7 @@ defmodule BeamFileTest do
     end
 
     test "returns an error tuple for an invalid path" do
-      assert BeamFile.info('invalid/path') ==
-               {:error, {:file_error, 'invalid/path.beam', :enoent}}
+      assert BeamFile.info('invalid/path') == {:error, :enoent}
     end
 
     test "returns an error tuple for invalid binary" do
@@ -648,27 +763,32 @@ defmodule BeamFileTest do
     end
   end
 
-  describe "read/1" do
-    test "reads the binary for a module" do
-      assert {:ok, binary} = BeamFile.read(Math)
+  describe "binary/1" do
+    test "returns the binary for a module" do
+      assert {:ok, binary} = BeamFile.binary(Math)
+      assert is_binary(binary)
+    end
+
+    test "returns the binary for a module from the beam file" do
+      assert {:ok, binary} = Math |> BeamFile.which!() |> BeamFile.binary()
       assert is_binary(binary)
     end
 
     test "binary stays binary :)" do
-      assert BeamFile.read("ping") == {:ok, "ping"}
+      assert BeamFile.binary("ping") == {:ok, "ping"}
     end
   end
 
-  describe "read!/1" do
-    test "reads the binary for a module" do
-      assert Math |> BeamFile.read!() |> is_binary()
+  describe "binary!/1" do
+    test "returns the binary for a module" do
+      assert Math |> BeamFile.binary!() |> is_binary()
     end
 
     test "raises an error for an unknown module" do
-      message = "Can not read Unknown, reason: :non_existing"
+      message = "Can not fetch Unknown, reason: :non_existing"
 
       assert_raise Error, message, fn ->
-        BeamFile.read!(Unknown)
+        BeamFile.binary!(Unknown)
       end
     end
   end

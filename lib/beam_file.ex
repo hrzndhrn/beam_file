@@ -29,7 +29,13 @@ defmodule BeamFile do
 
   @type path :: charlist()
 
-  @type input :: path() | module() | binary() | {:module, atom(), binary(), any()}
+  @type beam :: path() | binary()
+
+  @type input ::
+          beam()
+          | module()
+          | {:module, module(), binary(), any()}
+          | [{module(), binary()}]
 
   @type reason :: any()
 
@@ -96,6 +102,8 @@ defmodule BeamFile do
     :labeled_locals,
     :locals
   ]
+
+  @since_default Version.parse_requirement!(">= 0.0.0")
 
   @doc """
   Returns the `:abstract_code` chunk.
@@ -297,24 +305,16 @@ defmodule BeamFile do
       true
   """
   @spec all_chunks(input(), type :: :names | :ids) :: {:ok, map()} | {:error, any()}
-  def all_chunks(input, type \\ :names)
+  def all_chunks(input, type \\ :names) when type in [:ids, :names] do
+    with {:ok, input} <- binary(input) do
+      chunks =
+        case type do
+          :names -> @chunk_names
+          :ids -> @chunk_ids
+        end
 
-  def all_chunks({:module, _name, bin, _context}, type), do: all_chunks(bin, type)
-
-  def all_chunks(input, type) when is_atom(input) and type in [:ids, :names] do
-    with {:ok, path} <- path(input) do
-      all_chunks(path, type)
+      fetch_chunks(input, chunks, type)
     end
-  end
-
-  def all_chunks(input, type) when type in [:ids, :names] do
-    chunks =
-      case type do
-        :names -> @chunk_names
-        :ids -> @chunk_ids
-      end
-
-    fetch_chunks(input, chunks, type)
   end
 
   @doc """
@@ -348,16 +348,10 @@ defmodule BeamFile do
       ]
   """
   @spec byte_code(input()) :: {:ok, term()} | {:error, any()}
-  def byte_code({:module, _name, bin, _context}), do: byte_code(bin)
-
-  def byte_code(input) when is_atom(input) do
-    with {:ok, path} <- path(input), do: byte_code(path)
-  end
-
-  def byte_code(input) when is_list(input) or is_binary(input) do
-    with {:ok, data} <- read(input) do
+  def byte_code(input) do
+    with {:ok, data} <- binary(input) do
       case :beam_disasm.file(data) do
-        {:error, :beam_lib, reason} -> {:error, reason}
+        {:error, mod, reason} -> {:error, {mod, reason}}
         byte_code -> {:ok, byte_code}
       end
     end
@@ -393,25 +387,18 @@ defmodule BeamFile do
       true
   """
   @spec chunk(input(), chunk_ref()) :: {:ok, term()} | {:error, any()}
-  def chunk({:module, _name, bin, _context}, chunk), do: chunk(bin, chunk)
+  def chunk(input, chunk) when chunk in @chunk_ids or chunk in @chunk_names do
+    with {:ok, input} <- binary(input) do
+      type =
+        cond do
+          chunk in @chunk_names -> :names
+          chunk in @chunk_ids -> :ids
+        end
 
-  def chunk(input, chunk)
-      when is_atom(input) and (chunk in @chunk_ids or chunk in @chunk_names) do
-    with {:ok, path} <- path(input), do: chunk(path, chunk)
-  end
-
-  def chunk(input, chunk)
-      when (is_list(input) or is_binary(input)) and
-             (chunk in @chunk_ids or chunk in @chunk_names) do
-    type =
-      cond do
-        chunk in @chunk_names -> :names
-        chunk in @chunk_ids -> :ids
+      with {:ok, data} <- fetch_chunks(input, [chunk], type) do
+        [{_key, value}] = Map.to_list(data)
+        {:ok, value}
       end
-
-    with {:ok, data} <- fetch_chunks(input, [chunk], type) do
-      [{_key, value}] = Map.to_list(data)
-      {:ok, value}
     end
   end
 
@@ -438,22 +425,14 @@ defmodule BeamFile do
   Examples:
 
       iex> {:ok, info} = BeamFile.debug_info(BeamFile.Example)
-      iex> Map.get(info, :definitions)
-      [{{:hello, 0}, :def, [line: 2], [{[line: 2], [], [], :world}]}]
+      iex> info |> Map.get(:definitions) |> hd() |> elem(0)
+      {:hello, 0}
       iex> Map.get(info, :relative_file)
       "test/fixtures/example.ex"
 
   """
   @spec debug_info(input()) :: {:ok, term()} | {:error, any}
-  def debug_info({:module, _name, bin, _context}), do: debug_info(bin)
-
-  def debug_info(input) when is_atom(input) do
-    with {:ok, path} <- path(input) do
-      debug_info(path)
-    end
-  end
-
-  def debug_info(input) when is_list(input) or is_binary(input) do
+  def debug_info(input) do
     with {:ok, {:debug_info_v1, backend, data}} <- chunk(input, :debug_info) do
       case data do
         {:elixir_v1, debug_info, _meta} ->
@@ -485,32 +464,137 @@ defmodule BeamFile do
   @doc """
   Returns the infos from the `:docs` chunk.
 
+  ## Options
+
+    * `format` - the output format. The format `:info` reduces the output to the
+      type and the infos `:since`, `:hidden` and `:deprecated`. The format `since`
+      reduces the output to the type and the info `:since`.
+
+    * `hidden` - indicates whether only hidden or none hidden items are returned.
+      Without the option hidden and none hidden items are returned.
+
+    * `deprecated` - indicates wheter only deprecated or none deprecated items are
+      returned. Without the option deprecated and none deprecated items are returned.
+
+    * `since` - expected a version requirement. With `since`, the function returns
+      all items whose since attribute matches `since`. When `since` does not match
+      the module attribute since and not any item in the module matches, the tuple
+      `{:ok, nil}` is returned.
+
   ## Examples
 
       iex> BeamFile.docs(BeamFile.Example)
       {:ok, {:none, %{}, [{{:function, :hello, 0}, 2, ["hello()"], :none, %{}}]}}
-  """
-  @spec docs(input()) :: {:ok, term()} | {:error, any}
-  def docs({:module, _name, bin, _context}), do: docs(bin)
 
-  def docs(input) when is_atom(input) do
-    with {:ok, path} <- path(input) do
-      docs(path)
+  Examples with options (Elixir 1.16):
+  ```elixir
+  iex> BeamFile.docs(Float, format: :info, deprecated: true)
+  {:ok,
+   {[
+      {{:function, :to_char_list, 1}, [since: nil, hidden: true, deprecated: true]},
+      {{:function, :to_char_list, 2}, [since: nil, hidden: true, deprecated: true]},
+      {{:function, :to_string, 2}, [since: nil, hidden: true, deprecated: true]}
+    ], [since: nil, hidden: false, deprecated: false]}}
+
+  iex> BeamFile.docs(Date, format: :since, since: "~> 1.12")
+  {:ok,
+   {[
+      {{:function, :after?, 2}, [since: "1.15.0"]},
+      {{:function, :before?, 2}, [since: "1.15.0"]},
+      {{:function, :range, 3}, [since: "1.12.0"]}
+    ], [since: nil]}}
+  ```
+  """
+  @spec docs(input(), options :: keyword()) :: {:ok, term()} | {:error, any()}
+  def docs(input, options \\ []) do
+    with {:ok, {:docs_v1, _, :elixir, "text/markdown", doc, meta, docs}} <- chunk(input, :docs) do
+      {:ok, docs(doc, meta, docs, options)}
     end
   end
 
-  def docs(input) when is_list(input) or is_binary(input) do
-    with {:ok, {:docs_v1, _, :elixir, "text/markdown", doc, meta, docs}} <- chunk(input, :docs) do
-      {:ok, {doc, meta, docs}}
+  defp docs(doc, meta, docs, []) do
+    {doc, meta, docs}
+  end
+
+  defp docs(doc, meta, docs, options) do
+    since = options |> Keyword.get(:since, @since_default)
+    deprecated = Keyword.get(options, :deprecated)
+    hidden = Keyword.get(options, :hidden, true)
+    format = Keyword.get(options, :format)
+
+    docs =
+      docs
+      |> docs_since(since)
+      |> docs_hidden(hidden)
+      |> docs_deprecated(deprecated)
+
+    if not Enum.empty?(docs) or since_match?(meta, since) do
+      docs_format(doc, meta, docs, format)
+    else
+      nil
     end
+  end
+
+  defp docs_since(docs, @since_default), do: docs
+
+  defp docs_since(docs, since) do
+    Enum.filter(docs, fn doc -> doc |> elem(4) |> since_match?(since) end)
+  end
+
+  defp docs_hidden(docs, hidden) do
+    Enum.reject(docs, fn doc ->
+      elem(doc, 3) == :hidden && !hidden
+    end)
+  end
+
+  defp docs_deprecated(docs, nil), do: docs
+
+  defp docs_deprecated(docs, deprecated) do
+    Enum.filter(docs, fn doc ->
+      meta = elem(doc, 4)
+      deprecated?(meta) == deprecated
+    end)
+  end
+
+  def docs_format(doc, meta, docs, nil) do
+    {doc, meta, docs}
+  end
+
+  def docs_format(doc, meta, docs, format) do
+    docs =
+      Enum.map(docs, fn {info, _line, _name, doc, meta} ->
+        {info, info(format, doc, meta)}
+      end)
+
+    {docs, info(format, doc, meta)}
+  end
+
+  defp info(:info, doc, meta) do
+    [since: Map.get(meta, :since), hidden: doc == :hidden, deprecated: deprecated?(meta)]
+  end
+
+  defp info(:since, _doc, meta) do
+    [since: Map.get(meta, :since)]
+  end
+
+  defp deprecated?(meta) do
+    meta |> Map.get(:deprecated) |> is_binary()
+  end
+
+  defp since_match?(meta, since) when is_map(meta) do
+    meta |> Map.get(:since, "0.0.0") |> normalize_version() |> Version.match?(since)
+  end
+
+  defp normalize_version(version) do
+    if Regex.match?(~r/^\d+\.\d+$/, version), do: "#{version}.0", else: version
   end
 
   @doc """
-  Same as `docs/1` but raises `BeamFile.Error`
+  Same as `docs/2` but raises `BeamFile.Error`
   """
-  @spec docs!(input()) :: term()
-  def docs!(input) do
-    case docs(input) do
+  @spec docs!(input(), options: keyword()) :: term()
+  def docs!(input, options \\ []) do
+    case docs(input, options) do
       {:ok, docs} ->
         docs
 
@@ -546,19 +630,9 @@ defmodule BeamFile do
       }
   '''
   @spec elixir_code(input(), opts :: keyword()) :: {:ok, String.t()} | {:error, any}
-  def elixir_code(input, opts \\ [])
-
-  def elixir_code({:module, _name, bin, _context}, opts), do: elixir_code(bin, opts)
-
-  def elixir_code(input, opts) when is_atom(input) and input != Kernel.SpecialForms do
-    with {:ok, path} <- path(input) do
-      elixir_code(path, opts)
-    end
-  end
-
-  def elixir_code(input, opts) when is_list(input) or is_binary(input) do
+  def elixir_code(input, opts \\ []) do
     with {:ok, debug_info} <- debug_info(input),
-         {:ok, docs} <- docs(input, opts) do
+         {:ok, docs} <- maybe_docs(input, opts) do
       code =
         if docs do
           DebugInfo.code(debug_info, docs)
@@ -570,7 +644,7 @@ defmodule BeamFile do
     end
   end
 
-  defp docs(input, opts) do
+  defp maybe_docs(input, opts) do
     if Keyword.get(opts, :docs, false), do: docs(input), else: {:ok, nil}
   end
 
@@ -578,11 +652,7 @@ defmodule BeamFile do
   Same as `elixir_code/1` but raises `BeamFile.Error`
   """
   @spec elixir_code!(input(), opts :: keyword()) :: String.t()
-  def elixir_code!(input, opts \\ [])
-
-  def elixir_code!({:module, _name, bin, _context}, opts), do: elixir_code!(bin, opts)
-
-  def elixir_code!(input, opts) do
+  def elixir_code!(input, opts \\ []) do
     case elixir_code(input, opts) do
       {:ok, code} ->
         code
@@ -632,17 +702,7 @@ defmodule BeamFile do
       true
   """
   @spec erl_code(input()) :: {:ok, String.t()} | {:error, any()}
-  def erl_code({:module, _name, bin, _context}) do
-    erl_code(bin)
-  end
-
-  def erl_code(input) when is_atom(input) do
-    with {:ok, path} <- path(input) do
-      erl_code(path)
-    end
-  end
-
-  def erl_code(input) when is_list(input) or is_binary(input) do
+  def erl_code(input) do
     with {:ok, abstract_code} <- abstract_code(input) do
       code =
         abstract_code
@@ -666,40 +726,6 @@ defmodule BeamFile do
       {:error, reason} ->
         raise Error, """
         Erlang code for #{inspect(input, binaries: :as_binaries)} not available, \
-        reason: #{inspect(reason, binaries: :as_binaries)}\
-        """
-    end
-  end
-
-  @doc """
-  Returns the binary for the given BEAM file.
-  """
-  @spec read(Path.t() | path() | module()) ::
-          {:ok, binary()}
-          | {:error, File.posix()}
-          | {:error, :non_existing | :preloaded | :cover_compiled}
-  def read(input) when is_binary(input), do: {:ok, input}
-
-  def read(input) when is_list(input) do
-    input |> List.to_string() |> File.read()
-  end
-
-  def read(input) when is_atom(input) do
-    with {:ok, path} <- which(input), do: path |> String.to_charlist() |> read()
-  end
-
-  @doc """
-  Same as `read/1` but raises `BeamFile.Error`
-  """
-  @spec read!(Path.t() | path() | module()) :: binary()
-  def read!(input) do
-    case read(input) do
-      {:ok, binary} ->
-        binary
-
-      {:error, reason} ->
-        raise Error, """
-        Can not read #{inspect(input, binaries: :as_binaries)}, \
         reason: #{inspect(reason, binaries: :as_binaries)}\
         """
     end
@@ -758,25 +784,22 @@ defmodule BeamFile do
       ]
   """
   @spec info(input()) :: {:ok, info()} | {:error, reason()}
-  def info({:module, _name, bin, _context}), do: info(bin)
-
-  def info(input) when is_atom(input) do
-    with {:ok, path} <- path(input), do: info(path)
-  end
-
-  def info(input) when is_list(input) do
-    case :beam_lib.info(input) do
-      {:error, :beam_lib, reason} ->
-        {:error, reason}
-
-      info ->
-        info = Keyword.put(info, :file, IO.chardata_to_string(input))
-        {:ok, info}
+  def info(input) do
+    with {:ok, input} <- beam(input),
+         {:ok, info} <- do_info(input) do
+      {:ok, info_file(info, input)}
     end
   end
 
-  def info(input) when is_binary(input) do
+  defp info_file(info, input) when is_list(input) do
+    Keyword.put(info, :file, IO.chardata_to_string(input))
+  end
+
+  defp info_file(info, _input), do: info
+
+  defp do_info(input) do
     case :beam_lib.info(input) do
+      {:error, :beam_lib, {:file_error, _path, reason}} -> {:error, reason}
       {:error, :beam_lib, reason} -> {:error, reason}
       info -> {:ok, info}
     end
@@ -800,10 +823,8 @@ defmodule BeamFile do
           {:ok, Path.t()}
           | {:error, :non_existing | :preloaded | :cover_compiled}
   def which(module) when is_atom(module) do
-    case :code.which(module) do
-      [_ | _] = path -> {:ok, IO.chardata_to_string(path)}
-      [] -> {:error, :non_existing}
-      error -> {:error, error}
+    with {:ok, path} <- path(module) do
+      {:ok, path |> to_string() |> Path.relative_to_cwd()}
     end
   end
 
@@ -820,6 +841,48 @@ defmodule BeamFile do
         raise Error, "Path for #{module} not available, reason: #{inspect(reason)}."
     end
   end
+
+  @doc """
+  Returns the `binary` for the given input.
+  """
+  @spec binary(input()) ::
+          {:ok, binary()}
+          | {:error, File.posix()}
+          | {:error, :non_existing | :preloaded | :cover_compiled}
+  def binary(input) do
+    with {:ok, data} <- beam(input) do
+      if is_list(data) do
+        data |> List.to_string() |> File.read()
+      else
+        {:ok, data}
+      end
+    end
+  end
+
+  @doc """
+  Same as `binary/1` but raises `BeamFile.Error`
+  """
+  @spec binary!(input()) :: binary()
+  def binary!(input) do
+    case binary(input) do
+      {:ok, binary} ->
+        binary
+
+      {:error, reason} ->
+        raise Error, """
+        Can not fetch #{inspect(input, binaries: :as_binaries)}, \
+        reason: #{inspect(reason, binaries: :as_binaries)}\
+        """
+    end
+  end
+
+  @doc false
+  @deprecated "use binary/1 instead"
+  def read(input), do: binary(input)
+
+  @doc false
+  @deprecated "use binary!/1 instead"
+  def read!(input), do: binary!(input)
 
   defp fetch_chunks(input, chunks, type) when type in [:ids, :names] do
     chunks = Enum.map(chunks, &to_erl_chunk/1)
@@ -843,6 +906,8 @@ defmodule BeamFile do
   defp to_erl_chunk(chunk), do: chunk
 
   # For some chunks we need a transformation.
+  defp to_elixir_data({~c"Docs", :missing_chunk}, :names), do: {:docs, :missing_chunk}
+
   defp to_elixir_data({~c"Docs", data}, :names), do: {:docs, :erlang.binary_to_term(data)}
 
   defp to_elixir_data({~c"ExCk", data}, :names),
@@ -860,5 +925,18 @@ defmodule BeamFile do
       [_ | _] = path -> {:ok, path}
       error -> {:error, error}
     end
+  end
+
+  defp beam(input) when is_atom(input), do: path(input)
+  defp beam({:module, module, binary, _context}) when is_atom(module), do: {:ok, binary}
+  defp beam(input) when is_list(input), do: chardata(input)
+  defp beam(input) when is_binary(input), do: {:ok, input}
+  defp beam(_input), do: {:error, :invalid_input}
+
+  defp chardata(input) do
+    _string = IO.chardata_to_string(input)
+    {:ok, input}
+  rescue
+    _error -> {:error, :invalid_input}
   end
 end
