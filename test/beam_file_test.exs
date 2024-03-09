@@ -448,9 +448,11 @@ defmodule BeamFileTest do
       end
     end
 
-    test "returns elixir code with multiple whens" do
-      assert {:ok, code} = BeamFile.elixir_code(MultiWhen)
-      assert code <> "\n" == TestSupport.fixture("multi_when.exs")
+    if TestSupport.version?("~> 1.14") do
+      test "returns elixir code with multiple whens" do
+        assert {:ok, code} = BeamFile.elixir_code(MultiWhen)
+        assert code <> "\n" == TestSupport.fixture("multi_when.exs")
+      end
     end
 
     test "returns elixir code with op def" do
