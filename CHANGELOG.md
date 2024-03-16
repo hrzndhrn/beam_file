@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.0 - 2024/03/16
+
++ Updates to work with Elixir 1.16
++ Add options to `BeamFile.docs/2`/`BeamFile.docs!/2`
++ Update some error tuples
+
 ## 0.5.3 - 2023/07/11
 
 + The `BeamFile.Normalizer` generates now different AST formats for

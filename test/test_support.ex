@@ -2,7 +2,7 @@ defmodule TestSupport do
   @moduledoc false
 
   @latest_otp_release 26
-  @latest_elixir_version "1.15.2"
+  @latest_elixir_version "1.16.2"
 
   def version?(:latest) do
     version?(@latest_elixir_version)
