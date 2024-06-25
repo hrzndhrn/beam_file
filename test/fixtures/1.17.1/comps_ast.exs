@@ -86,7 +86,7 @@
                       [{:n, [{:version, 0}, {:line, 11}, {:column, 9}], nil}, [1, 2, 3]]
                     },
                     [
-                      into: {:%{}, [{:line, 11}, {:column, 32}], []},
+                      into: {:%{}, [{:line, 11}, {:column, 31}], []},
                       do: {
                         {:n, [{:version, 0}, {:line, 11}, {:column, 41}], nil},
                         {
@@ -125,7 +125,7 @@
                       [{:n, [{:version, 1}, {:line, 16}, {:column, 9}], nil}, [1, 2, 3]]
                     },
                     [
-                      into: {:%{}, [{:line, 17}, {:column, 16}], []},
+                      into: {:%{}, [{:line, 17}, {:column, 15}], []},
                       do: {
                         {:i, [{:version, 0}, {:line, 18}, {:column, 14}], nil},
                         {:n, [{:version, 1}, {:line, 18}, {:column, 17}], nil}
@@ -265,7 +265,7 @@
                       ]
                     },
                     [
-                      reduce: {:%{}, [{:line, 26}, {:column, 53}], []},
+                      reduce: {:%{}, [{:line, 26}, {:column, 52}], []},
                       do: [
                         {
                           :->,
@@ -304,11 +304,28 @@
                                       :->,
                                       [{:line, 27}, {:column, 45}],
                                       [
-                                        [{:x1, [version: 2], nil}],
+                                        [
+                                          {:capture,
+                                           [
+                                             version: 2,
+                                             counter: {Comps, 15},
+                                             line: 27,
+                                             column: 42
+                                           ], nil}
+                                        ],
                                         {
                                           {:., [{:line, 27}, {:column, 45}], [:erlang, :+]},
                                           [{:line, 27}, {:column, 45}],
-                                          [{:x1, [version: 2], nil}, 1]
+                                          [
+                                            {:capture,
+                                             [
+                                               version: 2,
+                                               counter: {Comps, 15},
+                                               line: 27,
+                                               column: 42
+                                             ], nil},
+                                            1
+                                          ]
                                         }
                                       ]
                                     }

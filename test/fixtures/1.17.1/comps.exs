@@ -26,7 +26,7 @@ defmodule Elixir.Comps do
           :erlang.andalso(:erlang.>=(x, 97), :erlang."=<"(x, 122))
         ),
         reduce: %{},
-        do: (acc -> Map.update(acc, <<x>>, 1, fn x1 -> :erlang.+(x1, 1) end))
+        do: (acc -> Map.update(acc, <<x>>, 1, fn capture -> :erlang.+(capture, 1) end))
   end
 
   def seven do

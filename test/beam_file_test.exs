@@ -591,7 +591,7 @@ defmodule BeamFileTest do
       assert code <> "\n" == File.read!("test/fixtures/doc_doc.exs")
     end
 
-    test "returns xxxx elixir code for the Comps module" do
+    test "returns elixir code for the Comps module" do
       assert {:ok, code} = BeamFile.elixir_code(Comps)
       assert code <> "\n" == TestSupport.fixture("comps.exs")
     end
@@ -701,7 +701,7 @@ defmodule BeamFileTest do
       assert info[:file] =~ "_build/test/lib/beam_file/ebin/Elixir.Math.beam"
       assert info[:module] == Math
 
-      if TestSupport.otp_release?([25, 26]) do
+      if TestSupport.otp_release?([25, 26, 27]) do
         assert [
                  {~c"AtU8", _, _},
                  {~c"Code", _, _},
