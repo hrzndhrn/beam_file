@@ -14,8 +14,8 @@ defmodule BeamFile.Normalizer do
     :"..//",
     :"//",
     :"::",
-    :"<|>",
-    :"^^^",
+    :<|>,
+    :^^^,
     :&&&,
     :&&,
     :&,
@@ -103,9 +103,14 @@ defmodule BeamFile.Normalizer do
     end
   end
 
-  # def normalize({{:., meta1, [:erlang, :binary_to_atom]}, meta2, [arg, :utf8]}, :code) do
-  #   {{:., meta1, [:erlang, :binary_to_atom]}, meta2, [arg, {:__block__, [], [:utf8]}]}
-  # end
+  if Version.match?(System.version(), "~> 1.13.0") do
+    # In Elixir 1.13 the original AST throws an error in the formatter.
+    # ** (CaseClauseError) no case clause matching: :utf8
+    # :utf8 is replaced with the equivalent AST {:__block__, [], [:utf8]}
+    def normalize({{:., meta1, [:erlang, :binary_to_atom]}, meta2, [arg, :utf8]}, :code) do
+      {{:., meta1, [:erlang, :binary_to_atom]}, meta2, [arg, {:__block__, [], [:utf8]}]}
+    end
+  end
 
   def normalize({:for, meta, args}, target) when is_list(args) do
     {args, [last]} = Enum.split(args, -1)
