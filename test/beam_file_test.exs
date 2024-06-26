@@ -864,27 +864,7 @@ defmodule BeamFileTest do
     end
 
     test "returns elixir ast for the Atom module" do
-      assert BeamFile.elixir_quoted!(Atom) ==
-               {:defmodule, [context: Elixir, import: Kernel],
-                [
-                  {:__aliases__, [alias: false], [Atom]},
-                  [
-                    do:
-                      {:__block__, [],
-                       [
-                         {:def, [line: 2, column: 7],
-                          [
-                            {:from, [], [{:string, [version: 0, line: 2, column: 12], nil}]},
-                            [
-                              do:
-                                {{:., [line: 3, column: 11], [:erlang, :binary_to_atom]},
-                                 [line: 3, column: 12],
-                                 [{:string, [version: 0, line: 3, column: 20], nil}, :utf8]}
-                            ]
-                          ]}
-                       ]}
-                  ]
-                ]}
+      assert BeamFile.elixir_quoted!(Atom) == TestSupport.fixture("atom_ast.exs", eval: true)
     end
 
     test "raises an error for an unknown module" do
