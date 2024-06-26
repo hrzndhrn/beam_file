@@ -517,7 +517,7 @@ defmodule BeamFile do
   end
 
   defp docs(doc, meta, docs, options) do
-    since = options |> Keyword.get(:since, @since_default)
+    since = Keyword.get(options, :since, @since_default)
     deprecated = Keyword.get(options, :deprecated)
     hidden = Keyword.get(options, :hidden, true)
     format = Keyword.get(options, :format)
@@ -556,11 +556,11 @@ defmodule BeamFile do
     end)
   end
 
-  def docs_format(doc, meta, docs, nil) do
+  defp docs_format(doc, meta, docs, nil) do
     {doc, meta, docs}
   end
 
-  def docs_format(doc, meta, docs, format) do
+  defp docs_format(doc, meta, docs, format) do
     docs =
       Enum.map(docs, fn {info, _line, _name, doc, meta} ->
         {info, info(format, doc, meta)}
