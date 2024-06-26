@@ -103,9 +103,9 @@ defmodule BeamFile.Normalizer do
     end
   end
 
-  def normalize({{:., meta1, [:erlang, :binary_to_atom]}, meta2, [arg, :utf8]}, _target) do
-    {{:., meta1, [:erlang, :binary_to_atom]}, meta2, [arg, {:__block__, [], [:utf8]}]}
-  end
+  # def normalize({{:., meta1, [:erlang, :binary_to_atom]}, meta2, [arg, :utf8]}, :code) do
+  #   {{:., meta1, [:erlang, :binary_to_atom]}, meta2, [arg, {:__block__, [], [:utf8]}]}
+  # end
 
   def normalize({:for, meta, args}, target) when is_list(args) do
     {args, [last]} = Enum.split(args, -1)
