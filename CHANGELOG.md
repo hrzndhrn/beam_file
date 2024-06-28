@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.1 - 2024/03/16
+
++ Updates to work with Elixir 1.17
++ Fix `BeamFile.Normalizer` by restricting normalization for 
+  `:erlang.binary_to_atom` to Elixir 1.13 and target `:code`.
+
 ## 0.6.0 - 2024/03/16
 
 + Updates to work with Elixir 1.16
