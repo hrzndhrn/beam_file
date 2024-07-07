@@ -8,7 +8,7 @@ defmodule Mix.Tasks.Beam.File do
   mix beam.file module switch
   ```
   The argument `module` specifies the `module` to decompile. The `switch` can be
-  one of `--elixir`, `--erlang`, or `--bytte-code`.
+  one of `--elixir`, `--erlang`, or `--byte-code`.
 
   Decompiling with `--elixir` returns the expanded Elixir code.
   """
