@@ -78,7 +78,7 @@ defmodule BeamFile.Normalizer do
 
   def normalize({:capture, meta, nil} = ast, :code) do
     case Keyword.get(meta, :counter) do
-      {Capture, count} -> {:"capture#{count}", meta, nil}
+      {_module, count} -> {:"capture#{count}", meta, nil}
       _else -> ast
     end
   end
