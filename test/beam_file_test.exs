@@ -598,7 +598,7 @@ defmodule BeamFileTest do
 
     test "returns elixir code for the Capture module" do
       assert {:ok, code} = BeamFile.elixir_code(Capture)
-      assert code <> "\n" == File.read!("test/fixtures/capture.exs")
+      assert code <> "\n" == TestSupport.fixture("capture.exs")
     end
 
     test "returns an error for invalid binary" do
