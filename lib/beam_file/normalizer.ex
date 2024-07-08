@@ -76,6 +76,13 @@ defmodule BeamFile.Normalizer do
     end
   end
 
+  def normalize({:capture, meta, nil} = ast, :code) do
+    case Keyword.get(meta, :counter) do
+      {Capture, count} -> {:"capture#{count}", meta, nil}
+      _else -> ast
+    end
+  end
+
   def normalize({:super, meta, args}, target) do
     case Keyword.has_key?(meta, :super) do
       true ->
