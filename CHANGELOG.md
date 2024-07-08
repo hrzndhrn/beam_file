@@ -1,6 +1,10 @@
 # Changelog
 
-## 0.6.1 - 2024/03/16
+## 0.6.2 - 2024/07/08
+
++ Normalize captures when disambling to Elixir code.
+
+## 0.6.1 - 2024/06/28
 
 + Updates to work with Elixir 1.17
 + Fix `BeamFile.Normalizer` by restricting normalization for 
