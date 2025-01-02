@@ -23,44 +23,43 @@ defmodule BeamFileTest do
                     module -> module |> to_string() |> String.starts_with?("elixir")
                   end)
 
+  defp assert_docs({:ok, left}, {:ok, right}) do
+    assert {left_moduledoc, left_meta, left_docs} = left
+    assert {right_moduledoc, right_meta, right_docs} = right
+
+    assert left_moduledoc == right_moduledoc
+    assert Map.delete(left_meta, :source_path) == Map.delete(right_meta, :source_path)
+    assert left_docs == right_docs
+  end
+
+  defp assert_docs(left, right), do: assert_docs({:ok, left}, {:ok, right})
+
   describe "abstract_code/1" do
     test "returns abstract code for module" do
-      if TestSupport.version?("~> 1.14") do
-        if TestSupport.otp_release?(26) do
-          assert BeamFile.abstract_code(Math) == @math_abstract_code
-        else
-          assert BeamFile.abstract_code(Math)
-        end
-      else
+      if TestSupport.otp_release?(:latest) do
         assert BeamFile.abstract_code(Math) == @math_abstract_code
+      else
+        assert BeamFile.abstract_code(Math)
       end
     end
 
     test "returns abstract code for binary" do
       math = File.read!(@math_beam_path)
 
-      if TestSupport.version?("~> 1.14") do
-        if TestSupport.otp_release?(26) do
-          assert BeamFile.abstract_code(math) == @math_abstract_code
-        else
-          assert BeamFile.abstract_code(math)
-        end
-      else
+      if TestSupport.otp_release?(:latest) do
         assert BeamFile.abstract_code(math) == @math_abstract_code
+      else
+        assert BeamFile.abstract_code(math)
       end
     end
 
     test "returns abstract code for the beam file at the given path" do
       path = String.to_charlist(@math_beam_path)
 
-      if TestSupport.version?("~> 1.14") do
-        if TestSupport.otp_release?(26) do
-          assert BeamFile.abstract_code(path) == @math_abstract_code
-        else
-          assert BeamFile.abstract_code(path)
-        end
-      else
+      if TestSupport.otp_release?(:latest) do
         assert BeamFile.abstract_code(path) == @math_abstract_code
+      else
+        assert BeamFile.abstract_code(path)
       end
     end
 
@@ -361,21 +360,21 @@ defmodule BeamFileTest do
 
   describe "docs/1" do
     test "return docs info for a module" do
-      assert BeamFile.docs(Math) == @math_docs
+      assert_docs(BeamFile.docs(Math), @math_docs)
     end
 
     test "return docs info for a path" do
       path = String.to_charlist(@math_beam_path)
-      assert BeamFile.docs(path) == @math_docs
+      assert_docs(BeamFile.docs(path), @math_docs)
     end
 
     test "return docs info for binary" do
       binary = File.read!(@math_beam_path)
-      assert BeamFile.docs(binary) == @math_docs
+      assert_docs(BeamFile.docs(binary), @math_docs)
     end
 
     test "return docs info for tuple" do
-      assert BeamFile.docs({:module, Math, BeamFile.binary!(Math), []}) == @math_docs
+      assert_docs(BeamFile.docs({:module, Math, BeamFile.binary!(Math), []}), @math_docs)
     end
 
     test "returns an error for invalid binary" do
@@ -396,7 +395,7 @@ defmodule BeamFileTest do
   describe "docs!/1" do
     test "returns docs info for a module" do
       {:ok, math_docs} = @math_docs
-      assert BeamFile.docs!(Math) == math_docs
+      assert_docs(BeamFile.docs!(Math), math_docs)
     end
 
     test "raises an error for an unknown module" do
