@@ -38,7 +38,7 @@ defmodule GitHubActions.Default do
       OTP #{~e[matrix.otp]})\
       """,
       runs_on: Config.get([os, :runs_on]),
-      strategy: [matrix: matrix()],
+      strategy: [fail_fast: false, matrix: matrix()],
       steps: [
         checkout(),
         setup_elixir(os),
