@@ -1,11 +1,15 @@
 defmodule TestSupport do
   @moduledoc false
 
-  @latest_otp_release 26
-  @latest_elixir_version "1.16.2"
+  @latest_otp_release 27
+  @latest_elixir_version "1.18.1"
 
   def version?(:latest) do
-    version?(@latest_elixir_version)
+    if Version.compare(@latest_elixir_version, system_version()) == :lt do
+      raise "@latest_elixir_version is lower than system version"
+    else
+      version?(@latest_elixir_version)
+    end
   end
 
   def version?(require) do
@@ -17,11 +21,15 @@ defmodule TestSupport do
   end
 
   def otp_release?(:latest) do
-    otp_release?(@latest_otp_release)
+    if @latest_otp_release < otp_release() do
+      raise "@latest_otp_release is lower than otp release"
+    else
+      otp_release?(@latest_otp_release)
+    end
   end
 
   def otp_release?(release) when is_integer(release) do
-    :erlang.list_to_integer(:erlang.system_info(:otp_release)) == release
+    otp_release() == release
   end
 
   def otp_release?(releases) when is_list(releases) do
@@ -36,6 +44,10 @@ defmodule TestSupport do
     else
       File.read!(path)
     end
+  end
+
+  defp otp_release do
+    :erlang.list_to_integer(:erlang.system_info(:otp_release))
   end
 
   defp system_version do

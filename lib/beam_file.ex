@@ -114,7 +114,7 @@ defmodule BeamFile do
       {
         :ok,
         [
-          {:attribute, 1, :file, {'test/fixtures/example.ex', 1}},
+          {:attribute, 1, :file, {~c"test/fixtures/example.ex", 1}},
           {:attribute, 1, :module, BeamFile.Example},
           {:attribute, 1, :compile, [:no_auto_import]},
           {:attribute, 1, :export, [__info__: 1, hello: 0]},
@@ -242,7 +242,7 @@ defmodule BeamFile do
               {:clause, 0, [{:atom, 0, :deprecated}], [], [nil: 0]}
             ]
           },
-          {:function, 2, :hello, 0, [{:clause, 2, [], [], [{:atom, 2, :world}]}]}
+          {:function, {2, 7}, :hello, 0, [{:clause, {2, 7}, [], [], [{:atom, {2, 7}, :world}]}]}
         ]
       }
   """
@@ -294,14 +294,14 @@ defmodule BeamFile do
         :labeled_locals,
         :locals
       ]
-      iex> Map.get(chunks, :docs)
-      {:docs_v1, 1, :elixir, "text/markdown", :none, %{},
-       [{{:function, :hello, 0}, 2, ["hello()"], :none, %{}}]}
+      iex> {:docs_v1, 1, :elixir, "text/markdown", :none, _meta, docs} = Map.get(chunks, :docs)
+      iex> docs
+      [{{:function, :hello, 0}, 2, ["hello()"], :none, %{source_annos: [{2, 7}]}}]
 
       iex> {:ok, chunks} = BeamFile.all_chunks(BeamFile.Example, :ids)
       iex> chunks |> Map.keys() |> Enum.sort()
-      ['Abst', 'AtU8', 'Attr', 'CInf', 'Dbgi', 'Docs', 'ExCk', 'ExpT', 'ImpT', 'LocT']
-      iex> chunks |> Map.get('Docs') |> is_binary()
+      [~c"Abst", ~c"AtU8", ~c"Attr", ~c"CInf", ~c"Dbgi", ~c"Docs", ~c"ExCk", ~c"ExpT", ~c"ImpT", ~c"LocT"]
+      iex> chunks |> Map.get(~c"Docs") |> is_binary()
       true
   """
   @spec all_chunks(input(), type :: :names | :ids) :: {:ok, map()} | {:error, any()}
@@ -382,7 +382,7 @@ defmodule BeamFile do
       iex> BeamFile.chunk(BeamFile.Example, :exports)
       {:ok, [__info__: 1, hello: 0, module_info: 0, module_info: 1]}
 
-      iex> {:ok, chunk} = BeamFile.chunk(BeamFile.Example, 'Dbgi')
+      iex> {:ok, chunk} = BeamFile.chunk(BeamFile.Example, ~c"Dbgi")
       iex> is_binary(chunk)
       true
   """
@@ -483,27 +483,28 @@ defmodule BeamFile do
 
   ## Examples
 
-      iex> BeamFile.docs(BeamFile.Example)
-      {:ok, {:none, %{}, [{{:function, :hello, 0}, 2, ["hello()"], :none, %{}}]}}
+      iex> {:ok, {:none, _meta, docs}} = BeamFile.docs(BeamFile.Example)
+      iex> docs
+      [{{:function, :hello, 0}, 2, ["hello()"], :none, %{source_annos: [{2, 7}]}}]
 
-  Examples with options (Elixir 1.16):
-  ```elixir
-  iex> BeamFile.docs(Float, format: :info, deprecated: true)
-  {:ok,
-   {[
-      {{:function, :to_char_list, 1}, [since: nil, hidden: true, deprecated: true]},
-      {{:function, :to_char_list, 2}, [since: nil, hidden: true, deprecated: true]},
-      {{:function, :to_string, 2}, [since: nil, hidden: true, deprecated: true]}
-    ], [since: nil, hidden: false, deprecated: false]}}
+  Examples with options:
 
-  iex> BeamFile.docs(Date, format: :since, since: "~> 1.12")
-  {:ok,
-   {[
-      {{:function, :after?, 2}, [since: "1.15.0"]},
-      {{:function, :before?, 2}, [since: "1.15.0"]},
-      {{:function, :range, 3}, [since: "1.12.0"]}
-    ], [since: nil]}}
-  ```
+      iex> BeamFile.docs(Float, format: :info, deprecated: true)
+      {:ok,
+       {[
+          {{:function, :to_char_list, 1}, [since: nil, hidden: true, deprecated: true]},
+          {{:function, :to_char_list, 2}, [since: nil, hidden: true, deprecated: true]},
+          {{:function, :to_string, 2}, [since: nil, hidden: true, deprecated: true]}
+        ], [since: nil, hidden: false, deprecated: false]}}
+
+      iex> BeamFile.docs(Date, format: :since, since: "~> 1.12")
+      {:ok,
+       {[
+          {{:function, :after?, 2}, [since: "1.15.0"]},
+          {{:function, :before?, 2}, [since: "1.15.0"]},
+          {{:function, :range, 3}, [since: "1.12.0"]},
+          {{:function, :shift, 2}, [since: "1.17.0"]}
+        ], [since: nil]}}
   """
   @spec docs(input(), options :: keyword()) :: {:ok, term()} | {:error, any()}
   def docs(input, options \\ []) do
@@ -767,20 +768,20 @@ defmodule BeamFile do
       ...> |> Enum.map(fn {id, _pos, _size} -> id end)
       ...> |> Enum.sort()
       [
-        'AtU8',
-        'Attr',
-        'CInf',
-        'Code',
-        'Dbgi',
-        'Docs',
-        'ExCk',
-        'ExpT',
-        'ImpT',
-        'Line',
-        'LitT',
-        'LocT',
-        'StrT',
-        'Type'
+        ~c"AtU8",
+        ~c"Attr",
+        ~c"CInf",
+        ~c"Code",
+        ~c"Dbgi",
+        ~c"Docs",
+        ~c"ExCk",
+        ~c"ExpT",
+        ~c"ImpT",
+        ~c"Line",
+        ~c"LitT",
+        ~c"LocT",
+        ~c"StrT",
+        ~c"Type"
       ]
   """
   @spec info(input()) :: {:ok, info()} | {:error, reason()}

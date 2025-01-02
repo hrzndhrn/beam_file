@@ -74,7 +74,8 @@ add(_number_a@1, _number_b@1) ->
     {max,
      [{context, 'Elixir.Math'},
       {imports, [{2, 'Elixir.Kernel'}]}],
-     [_a@1, _b@1]}.
+     [elixir_quote:shallow_validate_ast(_a@1),
+      elixir_quote:shallow_validate_ast(_b@1)]}.
 
 divide(_a@1, _b@1) when _b@1 /= 0 -> _a@1 div _b@1.
 
