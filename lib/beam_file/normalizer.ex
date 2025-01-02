@@ -11,7 +11,7 @@ defmodule BeamFile.Normalizer do
     :/,
     :!=,
     :!==,
-    :"..//",
+    :..//,
     :"//",
     :"::",
     :"<|>",

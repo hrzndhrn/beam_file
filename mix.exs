@@ -51,7 +51,7 @@ defmodule BeamFile.MixProject do
 
   defp aliases do
     [
-      carp: "test --seed 0 --max-failures 1"
+      carp: "test --seed 0 --max-failures 1 --trace"
     ]
   end
 
