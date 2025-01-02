@@ -36,42 +36,30 @@ defmodule BeamFileTest do
 
   describe "abstract_code/1" do
     test "returns abstract code for module" do
-      if TestSupport.version?("~> 1.14") do
-        if TestSupport.otp_release?(26) do
-          assert BeamFile.abstract_code(Math) == @math_abstract_code
-        else
-          assert BeamFile.abstract_code(Math)
-        end
-      else
+      if TestSupport.otp_release?(:latest) do
         assert BeamFile.abstract_code(Math) == @math_abstract_code
+      else
+        assert BeamFile.abstract_code(Math)
       end
     end
 
     test "returns abstract code for binary" do
       math = File.read!(@math_beam_path)
 
-      if TestSupport.version?("~> 1.14") do
-        if TestSupport.otp_release?(26) do
-          assert BeamFile.abstract_code(math) == @math_abstract_code
-        else
-          assert BeamFile.abstract_code(math)
-        end
-      else
+      if TestSupport.otp_release?(:latest) do
         assert BeamFile.abstract_code(math) == @math_abstract_code
+      else
+        assert BeamFile.abstract_code(math)
       end
     end
 
     test "returns abstract code for the beam file at the given path" do
       path = String.to_charlist(@math_beam_path)
 
-      if TestSupport.version?("~> 1.14") do
-        if TestSupport.otp_release?(26) do
-          assert BeamFile.abstract_code(path) == @math_abstract_code
-        else
-          assert BeamFile.abstract_code(path)
-        end
-      else
+      if TestSupport.otp_release?(:latest) do
         assert BeamFile.abstract_code(path) == @math_abstract_code
+      else
+        assert BeamFile.abstract_code(path)
       end
     end
 
