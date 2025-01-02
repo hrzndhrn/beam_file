@@ -3,7 +3,7 @@
   %{
     behaviours: [],
     source_annos: [{1, 1}],
-    source_path: ~c"/Users/kruse/Projects/hrzndhrn/beam_file/test/fixtures/math.ex"
+    source_path: ~c"/path/to/hrzndhrn/beam_file/test/fixtures/math.exs"
   },
   [
     {{:function, :add, 2}, 16, ["add(number_a, number_b)"], %{"en" => "Adds up two numbers.\n"},

@@ -23,6 +23,17 @@ defmodule BeamFileTest do
                     module -> module |> to_string() |> String.starts_with?("elixir")
                   end)
 
+  defp assert_docs({:ok, left}, {:ok, right}) do
+    assert {left_moduledoc, left_meta, left_docs} = left
+    assert {right_moduledoc, right_meta, right_docs} = right
+
+    assert left_moduledoc == right_moduledoc
+    assert Map.delete(left_meta, :source_path) == Map.delete(right_meta, :source_path)
+    assert left_docs == right_docs
+  end
+
+  defp assert_docs(left, right), do: assert_docs({:ok, left}, {:ok, right})
+
   describe "abstract_code/1" do
     test "returns abstract code for module" do
       if TestSupport.version?("~> 1.14") do
@@ -361,21 +372,21 @@ defmodule BeamFileTest do
 
   describe "docs/1" do
     test "return docs info for a module" do
-      assert BeamFile.docs(Math) == @math_docs
+      assert_docs(BeamFile.docs(Math), @math_docs)
     end
 
     test "return docs info for a path" do
       path = String.to_charlist(@math_beam_path)
-      assert BeamFile.docs(path) == @math_docs
+      assert_docs(BeamFile.docs(path), @math_docs)
     end
 
     test "return docs info for binary" do
       binary = File.read!(@math_beam_path)
-      assert BeamFile.docs(binary) == @math_docs
+      assert_docs(BeamFile.docs(binary), @math_docs)
     end
 
     test "return docs info for tuple" do
-      assert BeamFile.docs({:module, Math, BeamFile.binary!(Math), []}) == @math_docs
+      assert_docs(BeamFile.docs({:module, Math, BeamFile.binary!(Math), []}), @math_docs)
     end
 
     test "returns an error for invalid binary" do
@@ -396,7 +407,7 @@ defmodule BeamFileTest do
   describe "docs!/1" do
     test "returns docs info for a module" do
       {:ok, math_docs} = @math_docs
-      assert BeamFile.docs!(Math) == math_docs
+      assert_docs(BeamFile.docs!(Math), math_docs)
     end
 
     test "raises an error for an unknown module" do
@@ -881,3 +892,49 @@ defmodule BeamFileTest do
     end
   end
 end
+
+{:ok,
+ {%{"en" => "Math is Fun\n"},
+  %{
+    behaviours: [],
+    source_annos: [{1, 1}],
+    source_path: ~c"/home/runner/work/beam_file/beam_file/test/fixtures/math.ex"
+  },
+  [
+    {{:function, :add, 2}, 16, ["add(number_a, number_b)"], %{"en" => "Adds up two numbers.\n"},
+     %{source_annos: [{20, 7}]}},
+    {{:function, :divide, 2}, 43, ["divide(a, b)"], :none, %{source_annos: [{43, 7}]}},
+    {{:function, :double, 1}, 24, ["double(number)"], %{"en" => "Doubles a number.\n"},
+     %{source_annos: [{28, 7}]}},
+    {{:function, :odd_or_even, 1}, 56, ["odd_or_even(a)"], :none, %{source_annos: [{56, 7}]}},
+    {{:function, :pi, 0}, 64, ["pi()"], :none, %{source_annos: [{64, 7}]}},
+    {{:function, :triple, 1}, 30, ["triple(number)"], %{"en" => "Triples a number.\n"},
+     %{source_annos: [{34, 7}]}},
+    {{:macro, :biggest, 2}, 47, ["biggest(a, b)"], %{"en" => "Returns the biggest.\n"},
+     %{source_annos: [{50, 12}]}},
+    {{:type, :num, 0}, 8, [], %{"en" => "number"}, %{source_annos: [{9, 9}]}},
+    {{:type, :x, 0}, 10, [], :none, %{opaque: true, source_annos: [{10, 11}]}}
+  ]}}
+
+{:ok,
+ {%{"en" => "Math is Fun\n"},
+  %{
+    behaviours: [],
+    source_annos: [{1, 1}],
+    source_path: ~c"/Users/kruse/Projects/hrzndhrn/beam_file/test/fixtures/math.ex"
+  },
+  [
+    {{:function, :add, 2}, 16, ["add(number_a, number_b)"], %{"en" => "Adds up two numbers.\n"},
+     %{source_annos: [{20, 7}]}},
+    {{:function, :divide, 2}, 43, ["divide(a, b)"], :none, %{source_annos: [{43, 7}]}},
+    {{:function, :double, 1}, 24, ["double(number)"], %{"en" => "Doubles a number.\n"},
+     %{source_annos: [{28, 7}]}},
+    {{:function, :odd_or_even, 1}, 56, ["odd_or_even(a)"], :none, %{source_annos: [{56, 7}]}},
+    {{:function, :pi, 0}, 64, ["pi()"], :none, %{source_annos: [{64, 7}]}},
+    {{:function, :triple, 1}, 30, ["triple(number)"], %{"en" => "Triples a number.\n"},
+     %{source_annos: [{34, 7}]}},
+    {{:macro, :biggest, 2}, 47, ["biggest(a, b)"], %{"en" => "Returns the biggest.\n"},
+     %{source_annos: [{50, 12}]}},
+    {{:type, :num, 0}, 8, [], %{"en" => "number"}, %{source_annos: [{9, 9}]}},
+    {{:type, :x, 0}, 10, [], :none, %{opaque: true, source_annos: [{10, 11}]}}
+  ]}}
