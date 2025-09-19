@@ -26,7 +26,7 @@
        {{:odd_or_even, 1}, :def, [line: 56, column: 7],
         [
           {[line: 56, column: 7], [{:a, [version: 0, line: 56, column: 19], nil}], [],
-           {:case, [line: 57, optimize_boolean: true],
+           {:case, [line: 57, optimize_boolean: true, type_check: :expr],
             [
               {{:., [line: 57, column: 18], [:erlang, :==]}, [line: 57, column: 18],
                [
