@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.3 - 2025/09/20
+
++ Handle functions named `for`.
+
 ## 0.6.2 - 2024/07/08
 
 + Normalize captures when disambling to Elixir code.

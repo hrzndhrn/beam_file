@@ -119,6 +119,11 @@ defmodule BeamFile.Normalizer do
     end
   end
 
+  def normalize({expr, meta, [{:for, for_meta, for_args} | args]}, target)
+      when expr in [:def, :defp] do
+    {expr, meta, [{:for, for_meta, normalize(for_args, target)} | normalize(args, target)]}
+  end
+
   def normalize({:for, meta, args}, target) when is_list(args) do
     {args, [last]} = Enum.split(args, -1)
 

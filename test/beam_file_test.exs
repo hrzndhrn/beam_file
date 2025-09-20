@@ -590,6 +590,11 @@ defmodule BeamFileTest do
       assert code <> "\n" == File.read!("test/fixtures/doc_doc.exs")
     end
 
+    test "returns elixir code with for functions" do
+      assert {:ok, code} = BeamFile.elixir_code(DefFor)
+      assert code <> "\n" == File.read!("test/fixtures/def_for.exs")
+    end
+
     test "returns elixir code for the Comps module" do
       assert {:ok, code} = BeamFile.elixir_code(Comps)
       assert code <> "\n" == TestSupport.fixture("comps.exs")
@@ -705,7 +710,7 @@ defmodule BeamFileTest do
       assert info[:file] =~ "_build/test/lib/beam_file/ebin/Elixir.Math.beam"
       assert info[:module] == Math
 
-      if TestSupport.otp_release?([25, 26, 27]) do
+      if TestSupport.otp_release?([25, 26, 27, 28]) do
         assert [
                  {~c"AtU8", _, _},
                  {~c"Code", _, _},
@@ -849,6 +854,11 @@ defmodule BeamFileTest do
                Code.compile_quoted(
                  {:defmodule, meta, [{:__aliases__, [alias: false], [TestComps]} | block]}
                )
+    end
+
+    test "returns the elixir ast for DefFor" do
+      assert quoted = BeamFile.elixir_quoted!(DefFor)
+      assert quoted == TestSupport.fixture("def_for_ast.exs", eval: true)
     end
 
     test "returns the elixir ast for MultiWhen" do
