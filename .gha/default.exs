@@ -21,7 +21,7 @@ defmodule GitHubActions.Default do
     if elixir, do: "~> #{Version.minor(elixir)}", else: Project.elixir()
   end
 
-  defp otp_version, do: "> 21.0.0"
+  defp otp_version, do: "> 24.0.0"
 
   defp matrix do
     Versions.matrix(
