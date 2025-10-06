@@ -10,11 +10,11 @@ defmodule BeamFile.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       test_coverage: [tool: ExCoveralls],
-      preferred_cli_env: preferred_cli_env(),
       dialyzer: dialyzer(),
       package: package(),
       docs: docs(),
-      aliases: aliases()
+      aliases: aliases(),
+      test_ignore_filters: ["test/test_support.ex", ~r/.*fixtures.*/]
     ]
   end
 
@@ -24,20 +24,22 @@ defmodule BeamFile.MixProject do
     ]
   end
 
+  def cli do
+    [
+      preferred_env: [
+        carp: :test,
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.html": :test,
+        "coveralls.github": :test
+      ]
+    ]
+  end
+
   defp docs do
     [
       main: "BeamFile",
       formatters: ["html"]
-    ]
-  end
-
-  defp preferred_cli_env do
-    [
-      carp: :test,
-      coveralls: :test,
-      "coveralls.detail": :test,
-      "coveralls.html": :test,
-      "coveralls.github": :test
     ]
   end
 

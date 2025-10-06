@@ -18,6 +18,7 @@ defmodule BeamFileTest do
                   |> Application.spec(:modules)
                   |> Enum.concat(Application.spec(:logger, :modules))
                   |> Enum.reject(fn
+                    Base -> true
                     Kernel.SpecialForms -> true
                     :iex -> true
                     module -> module |> to_string() |> String.starts_with?("elixir")
