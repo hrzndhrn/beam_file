@@ -26,7 +26,7 @@ defmodule BeamFile.MixProject do
 
   def cli do
     [
-      preferred_env: [
+      preferred_envs: [
         carp: :test,
         coveralls: :test,
         "coveralls.detail": :test,
