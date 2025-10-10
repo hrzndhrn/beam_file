@@ -317,7 +317,7 @@ defmodule GitHubActions.Default do
     otp = ~e[matrix.otp]
     setup_beam_version = ~e{steps.setup-beam.outputs.setup-beam-version}
     lock = ~e[hashFiles(format('{0}{1}', github.workspace, '/mix.lock'))]
-    "#{key}-#{os}-#{elixir}-#{otp}-#{lock}-#{setup_beam_version}"
+    "#{key}-X-#{os}-#{elixir}-#{otp}-#{lock}-#{setup_beam_version}"
   end
 
   defp latest_version(true) do

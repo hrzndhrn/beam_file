@@ -63,18 +63,18 @@ jobs:
         uses: actions/cache@v4
         with:
           path: deps
-          key: deps-${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}-${{ steps.setup-beam.outputs.setup-beam-version }}
+          key: deps-X-${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}-${{ steps.setup-beam.outputs.setup-beam-version }}
       - name: Restore _build
         uses: actions/cache@v4
         with:
           path: _build
-          key: _build-${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}-${{ steps.setup-beam.outputs.setup-beam-version }}
+          key: _build-X-${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}-${{ steps.setup-beam.outputs.setup-beam-version }}
       - name: Restore test/support/plts
         if: ${{ matrix.elixir == '1.18.4' && matrix.otp == '28.1' }}
         uses: actions/cache@v4
         with:
           path: test/support/plts
-          key: test/support/plts-${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}-${{ steps.setup-beam.outputs.setup-beam-version }}
+          key: test/support/plts-X-${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}-${{ steps.setup-beam.outputs.setup-beam-version }}
       - name: Get dependencies
         run: mix deps.get
       - name: Compile dependencies
@@ -95,9 +95,7 @@ jobs:
         run: mix test
       - name: Run tests with coverage
         if: ${{ matrix.elixir == '1.18.4' && matrix.otp == '28.1' }}
-        run: |
-          rm -rf _build
-          mix coveralls.github
+        run: mix coveralls.github
       - name: Static code analysis
         if: ${{ matrix.elixir == '1.18.4' && matrix.otp == '28.1' }}
         run: mix dialyzer --format github --force-check
