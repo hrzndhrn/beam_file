@@ -17,12 +17,6 @@ defmodule BeamFileTest do
     |> Kernel.ParallelCompiler.compile_to_path("_build/test/lib/beam_file/ebin",
       return_diagnostics: true
     )
-    |> then(fn {:ok, modules, %{runtime_warnings: [], compile_warnings: []}} ->
-      Enum.map(modules, fn module ->
-        module |> BeamFile.which!()
-      end)
-    end)
-    |> :beam_lib.strip_files([:abstract_code, :debug_info, :docs])
 
     Code.put_compiler_option(:docs, false)
 
