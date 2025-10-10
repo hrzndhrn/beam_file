@@ -25,9 +25,6 @@ jobs:
           - '26.2'
           - '27.3'
           - '28.1'
-        include:
-          - elixir: '1.19.0-rc.1'
-            otp: '28.1'
         exclude:
           - elixir: '1.13.4'
             otp: '26.2'
@@ -73,7 +70,7 @@ jobs:
           path: _build
           key: _build-${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}-${{ steps.setup-beam.outputs.setup-beam-version }}
       - name: Restore test/support/plts
-        if: ${{ matrix.elixir == '1.19.0-rc.1' && matrix.otp == '28.1' }}
+        if: ${{ matrix.elixir == '1.18.4' && matrix.otp == '28.1' }}
         uses: actions/cache@v4
         with:
           path: test/support/plts
@@ -85,20 +82,22 @@ jobs:
       - name: Compile project
         run: MIX_ENV=test mix compile --warnings-as-errors
       - name: Check unused dependencies
-        if: ${{ matrix.elixir == '1.19.0-rc.1' && matrix.otp == '28.1' }}
+        if: ${{ matrix.elixir == '1.18.4' && matrix.otp == '28.1' }}
         run: mix deps.unlock --check-unused
       - name: Check code format
-        if: ${{ matrix.elixir == '1.19.0-rc.1' && matrix.otp == '28.1' }}
+        if: ${{ matrix.elixir == '1.18.4' && matrix.otp == '28.1' }}
         run: mix format --check-formatted
       - name: Lint code
-        if: ${{ matrix.elixir == '1.19.0-rc.1' && matrix.otp == '28.1' }}
+        if: ${{ matrix.elixir == '1.18.4' && matrix.otp == '28.1' }}
         run: mix credo --strict
       - name: Run tests
-        if: ${{ !(matrix.elixir == '1.19.0-rc.1' && matrix.otp == '28.1') }}
+        if: ${{ !(matrix.elixir == '1.18.4' && matrix.otp == '28.1') }}
         run: mix test
       - name: Run tests with coverage
-        if: ${{ matrix.elixir == '1.19.0-rc.1' && matrix.otp == '28.1' }}
-        run: mix coveralls.github
+        if: ${{ matrix.elixir == '1.18.4' && matrix.otp == '28.1' }}
+        run: |
+          rm -rf _build
+          mix coveralls.github
       - name: Static code analysis
-        if: ${{ matrix.elixir == '1.19.0-rc.1' && matrix.otp == '28.1' }}
+        if: ${{ matrix.elixir == '1.18.4' && matrix.otp == '28.1' }}
         run: mix dialyzer --format github --force-check

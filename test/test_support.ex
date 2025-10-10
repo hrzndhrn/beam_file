@@ -2,7 +2,7 @@ defmodule TestSupport do
   @moduledoc false
 
   @latest_otp_release 28
-  @latest_elixir_version "1.19.0-rc.1"
+  @latest_elixir_version "1.19.0-rc.2"
 
   def version?(:latest) do
     if Version.compare(@latest_elixir_version, system_version()) == :lt do

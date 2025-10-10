@@ -8,6 +8,7 @@ defmodule BeamFile.MixProject do
       elixir: "~> 1.13",
       description: "An interface to the BEAM file format and a decompiler",
       start_permanent: Mix.env() == :prod,
+      elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       test_coverage: [tool: ExCoveralls],
       dialyzer: dialyzer(),
@@ -35,6 +36,9 @@ defmodule BeamFile.MixProject do
       ]
     ]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/test_support.ex"]
+  defp elixirc_paths(_), do: ["lib"]
 
   defp docs do
     [
