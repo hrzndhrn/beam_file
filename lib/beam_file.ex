@@ -911,12 +911,10 @@ defmodule BeamFile do
 
   defp to_elixir_data({~c"Docs", data}, :names), do: {:docs, :erlang.binary_to_term(data)}
 
+  defp to_elixir_data({~c"ExCk", :missing_chunk}, :names), do: {:elixir_checker, :missing_chunk}
+
   defp to_elixir_data({~c"ExCk", data}, :names),
     do: {:elixir_checker, :erlang.binary_to_term(data)}
-
-  defp to_elixir_data({~c"Docs", data}, :ids), do: {~c"Docs", data}
-
-  defp to_elixir_data({~c"ExCk", data}, :ids), do: {~c"ExCk", data}
 
   defp to_elixir_data(item, _type), do: item
 

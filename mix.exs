@@ -8,13 +8,14 @@ defmodule BeamFile.MixProject do
       elixir: "~> 1.13",
       description: "An interface to the BEAM file format and a decompiler",
       start_permanent: Mix.env() == :prod,
+      elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       test_coverage: [tool: ExCoveralls],
-      preferred_cli_env: preferred_cli_env(),
       dialyzer: dialyzer(),
       package: package(),
       docs: docs(),
-      aliases: aliases()
+      aliases: aliases(),
+      test_ignore_filters: ["test/test_support.ex", ~r/.*fixtures.*/]
     ]
   end
 
@@ -24,20 +25,25 @@ defmodule BeamFile.MixProject do
     ]
   end
 
+  def cli do
+    [
+      preferred_envs: [
+        carp: :test,
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.html": :test,
+        "coveralls.github": :test
+      ]
+    ]
+  end
+
+  defp elixirc_paths(:test), do: ["lib", "test/test_support.ex"]
+  defp elixirc_paths(_), do: ["lib"]
+
   defp docs do
     [
       main: "BeamFile",
       formatters: ["html"]
-    ]
-  end
-
-  defp preferred_cli_env do
-    [
-      carp: :test,
-      coveralls: :test,
-      "coveralls.detail": :test,
-      "coveralls.html": :test,
-      "coveralls.github": :test
     ]
   end
 

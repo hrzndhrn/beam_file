@@ -3,5 +3,5 @@
     "treat_no_relevant_lines_as_covered": true,
     "minimum_coverage": 90
   },
-  "skip_files": ["lib/mix/tasks/beam.file.ex"]
+  "skip_files": ["lib/mix/tasks/beam.file.ex", "test/.*"]
 }
