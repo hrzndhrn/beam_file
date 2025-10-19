@@ -24,7 +24,7 @@ defmodule BeamFileTest do
   end
 
   if version?(:latest) and otp_release?(:latest) do
-    doctest(BeamFile)
+    doctest BeamFile
   end
 
   @math_beam_path "_build/test/lib/beam_file/ebin/Elixir.Math.beam"
