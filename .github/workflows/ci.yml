@@ -100,7 +100,9 @@ jobs:
         run: mix test
       - name: Run tests with coverage
         if: ${{ matrix.elixir == '1.19.0' && matrix.otp == '28.1' }}
-        run: mix coveralls.github
+        run: |
+          rm -rf _build
+          mix coveralls.github
       - name: Static code analysis
         if: ${{ matrix.elixir == '1.19.0' && matrix.otp == '28.1' }}
         run: mix dialyzer --format github --force-check

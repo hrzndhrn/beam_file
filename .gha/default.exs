@@ -286,10 +286,15 @@ defmodule GitHubActions.Default do
   defp run_coverage(_nix) do
     case Project.has_dep?(:excoveralls) do
       true ->
+        # The 'rm -rf build' is a workaround. Without the workaround test are
+        # failing with {:error, :cover_compiled}.
         [
           name: "Run tests with coverage",
           if: latest_version(true),
-          run: mix(:coveralls, Config.get([:steps, :coveralls]))
+          run: """
+          rm -rf _build
+          #{mix(:coveralls, Config.get([:steps, :coveralls]))}
+          """
         ]
 
       false ->
