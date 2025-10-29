@@ -473,7 +473,7 @@ defmodule BeamFile do
     * `hidden` - indicates whether only hidden or none hidden items are returned.
       Without the option hidden and none hidden items are returned.
 
-    * `deprecated` - indicates wheter only deprecated or none deprecated items are
+    * `deprecated` - indicates whether only deprecated or none deprecated items are
       returned. Without the option deprecated and none deprecated items are returned.
 
     * `since` - expected a version requirement. With `since`, the function returns

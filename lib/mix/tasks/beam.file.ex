@@ -63,7 +63,7 @@ defmodule Mix.Tasks.Beam.File do
   defp validate({_opts, []}) do
     Mix.raise("""
     #{@error}
-    Missing a moudle name.
+    Missing a module name.
     """)
   end
 

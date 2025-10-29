@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.4 - 2025/10/29
+
++ Fix typos.
+
 ## 0.6.3 - 2025/09/20
 
 + Handle functions named `for`.

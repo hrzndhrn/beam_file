@@ -137,7 +137,7 @@ defmodule BeamFile.DebugInfo do
   defp doc(:module), do: "@moduledoc"
   defp doc(:def), do: "@doc"
 
-  defp defdocs({_moudle, _context, docs}) do
+  defp defdocs({_module, _context, docs}) do
     docs
     |> Enum.reduce([], fn
       {{kind, name, arity}, line, _code, docs, _opts}, acc
