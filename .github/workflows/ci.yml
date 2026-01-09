@@ -1,4 +1,4 @@
-# Created with GitHubActions version 0.3.8
+# Created with GitHubActions version 0.3.17
 name: CI
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -19,41 +19,41 @@ jobs:
           - '1.16.3'
           - '1.17.3'
           - '1.18.4'
-          - '1.19.0'
+          - '1.19.5'
         otp:
           - '24.3'
           - '25.3'
           - '26.2'
           - '27.3'
-          - '28.1'
+          - '28.3'
         exclude:
           - elixir: '1.13.4'
             otp: '26.2'
           - elixir: '1.13.4'
             otp: '27.3'
           - elixir: '1.13.4'
-            otp: '28.1'
+            otp: '28.3'
           - elixir: '1.14.5'
             otp: '27.3'
           - elixir: '1.14.5'
-            otp: '28.1'
+            otp: '28.3'
           - elixir: '1.15.8'
             otp: '27.3'
           - elixir: '1.15.8'
-            otp: '28.1'
+            otp: '28.3'
           - elixir: '1.16.3'
             otp: '27.3'
           - elixir: '1.16.3'
-            otp: '28.1'
+            otp: '28.3'
           - elixir: '1.17.3'
             otp: '24.3'
           - elixir: '1.17.3'
-            otp: '28.1'
+            otp: '28.3'
           - elixir: '1.18.4'
             otp: '24.3'
-          - elixir: '1.19.0'
+          - elixir: '1.19.5'
             otp: '24.3'
-          - elixir: '1.19.0'
+          - elixir: '1.19.5'
             otp: '25.3'
     steps:
       - name: Checkout
@@ -75,7 +75,7 @@ jobs:
           path: _build
           key: _build-X-${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}-${{ steps.setup-beam.outputs.setup-beam-version }}
       - name: Restore test/support/plts
-        if: ${{ matrix.elixir == '1.19.0' && matrix.otp == '28.1' }}
+        if: ${{ matrix.elixir == '1.19.5' && matrix.otp == '28.3' }}
         uses: actions/cache@v4
         with:
           path: test/support/plts
@@ -87,22 +87,22 @@ jobs:
       - name: Compile project
         run: MIX_ENV=test mix compile --warnings-as-errors
       - name: Check unused dependencies
-        if: ${{ matrix.elixir == '1.19.0' && matrix.otp == '28.1' }}
+        if: ${{ matrix.elixir == '1.19.5' && matrix.otp == '28.3' }}
         run: mix deps.unlock --check-unused
       - name: Check code format
-        if: ${{ matrix.elixir == '1.19.0' && matrix.otp == '28.1' }}
+        if: ${{ matrix.elixir == '1.19.5' && matrix.otp == '28.3' }}
         run: mix format --check-formatted
       - name: Lint code
-        if: ${{ matrix.elixir == '1.19.0' && matrix.otp == '28.1' }}
+        if: ${{ matrix.elixir == '1.19.5' && matrix.otp == '28.3' }}
         run: mix credo --strict
       - name: Run tests
-        if: ${{ !(matrix.elixir == '1.19.0' && matrix.otp == '28.1') }}
+        if: ${{ !(matrix.elixir == '1.19.5' && matrix.otp == '28.3') }}
         run: mix test
       - name: Run tests with coverage
-        if: ${{ matrix.elixir == '1.19.0' && matrix.otp == '28.1' }}
+        if: ${{ matrix.elixir == '1.19.5' && matrix.otp == '28.3' }}
         run: |
           rm -rf _build
           mix coveralls.github
       - name: Static code analysis
-        if: ${{ matrix.elixir == '1.19.0' && matrix.otp == '28.1' }}
+        if: ${{ matrix.elixir == '1.19.5' && matrix.otp == '28.3' }}
         run: mix dialyzer --format github --force-check
