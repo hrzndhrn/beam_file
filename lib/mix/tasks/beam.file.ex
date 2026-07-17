@@ -27,7 +27,7 @@ defmodule Mix.Tasks.Beam.File do
   end
 
   defp output({[{type, true}], [module]}) do
-    Mix.Task.run("compile")
+    Mix.Task.run("loadpaths")
 
     module = Module.concat([module])
 
