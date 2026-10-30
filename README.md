@@ -318,7 +318,7 @@ bar() -> bar.
 More information about BEAM files:
 
 - [BEAM File Format](https://beam-wisdoms.clau.se/beam-file-format.html)
-  on [BEAM Wisdom](http://beam-wisdoms.clau.se/en/latest/)
+  on [BEAM Wisdom](http://beam-wisdoms.clau.se)
 - [The Feature That No One Knew About in Elixir 1.5](https://www.youtube.com/watch?time_continue=931&v=p4uE-jTB_Uk&feature=emb_logo)
   by José Valim
 - [Disassemble Elixir code. And check if Erlang dead code elimination works](
